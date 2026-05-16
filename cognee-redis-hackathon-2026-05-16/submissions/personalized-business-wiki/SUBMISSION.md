@@ -153,5 +153,6 @@ LLM_REASONING_EFFORT=low
 
 ## Links
 
-- Repo: this PR
-- Slides / writeup: see `README.md` and `screenshots/`
+- Full code repo: https://github.com/NUM-GITHUB/personalized-business-wiki-demo
+- Submission PR: https://github.com/topoteretes/cognee-hackathons/pull/11
+- Writeup and screenshots: included in the full code repo README and `screenshots/` directory
