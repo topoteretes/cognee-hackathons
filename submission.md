@@ -3,7 +3,7 @@
 ## Team
 
 - Team name: Askvio Wiki Memory
-- Participants: Askvio hackathon team
+- Participants: Luigi Russo
 - Wiki / project name: Askvio Wiki Memory PoC
 
 ## Wiki Overview
