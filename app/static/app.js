@@ -19,9 +19,18 @@ function renderKpis(data) {
     ["Wiki evidence", data.wiki.metrics.evidence_count],
     ["Fastest", data.comparison.fastest],
     ["Wiki score Δ", data.comparison.wiki_top_score_delta],
+    ["Vector backend", data.vector.metrics.search_backend || "n/a"],
+    ["Vector LLM", data.vector.metrics.llm_used ? data.vector.metrics.model : "off"],
+    ["Wiki LLM", data.wiki.metrics.llm_used ? data.wiki.metrics.model : "off"],
   ];
   $("kpis").innerHTML = metrics.map(([label, value]) => `<div class="kpi"><span>${label}</span><strong>${value}</strong></div>`).join("");
 }
+
+$("inspect-wiki").addEventListener("click", async () => {
+  const response = await fetch("/api/wiki");
+  renderJson("wiki-json", await response.json());
+  $("wiki-inspector").open = true;
+});
 
 $("upload-form").addEventListener("submit", async (event) => {
   event.preventDefault();

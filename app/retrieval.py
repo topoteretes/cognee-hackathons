@@ -4,7 +4,7 @@ import math
 import re
 from collections import Counter, defaultdict
 from dataclasses import asdict
-from typing import Iterable
+from typing import Iterable, Sequence
 
 from .html_processing import clean_text, split_sentences
 from .models import AnswerResult, HtmlDocument, QueryEvidence
@@ -33,6 +33,15 @@ def cosine(left: Counter[str], right: Counter[str]) -> float:
     numerator = sum(left[t] * right[t] for t in overlap)
     left_norm = math.sqrt(sum(v * v for v in left.values()))
     right_norm = math.sqrt(sum(v * v for v in right.values()))
+    return numerator / (left_norm * right_norm) if left_norm and right_norm else 0.0
+
+
+def vector_cosine(left: Sequence[float], right: Sequence[float]) -> float:
+    if not left or not right or len(left) != len(right):
+        return 0.0
+    numerator = sum(a * b for a, b in zip(left, right))
+    left_norm = math.sqrt(sum(a * a for a in left))
+    right_norm = math.sqrt(sum(b * b for b in right))
     return numerator / (left_norm * right_norm) if left_norm and right_norm else 0.0
 
 
@@ -73,10 +82,12 @@ class VectorKnowledgeBase:
     def __init__(self) -> None:
         self.chunks: list[dict[str, str]] = []
         self._vectors: list[Counter[str]] = []
+        self._embedding_vectors: list[list[float]] = []
 
     def build(self, documents: list[HtmlDocument]) -> None:
         self.chunks = []
         self._vectors = []
+        self._embedding_vectors = []
         for doc in documents:
             for index, chunk in enumerate(chunk_text(doc.text)):
                 record = {
@@ -89,13 +100,25 @@ class VectorKnowledgeBase:
                 self.chunks.append(record)
                 self._vectors.append(term_vector(chunk))
 
-    def query(self, question: str, k: int = 4) -> AnswerResult:
+    def set_embedding_vectors(self, embeddings: list[list[float]] | None) -> None:
+        self._embedding_vectors = embeddings if embeddings and len(embeddings) == len(self.chunks) else []
+
+    def query(self, question: str, k: int = 4, query_embedding: list[float] | None = None) -> AnswerResult:
         query_vec = term_vector(question)
-        ranked = sorted(
-            ((cosine(query_vec, vector), chunk) for vector, chunk in zip(self._vectors, self.chunks)),
-            key=lambda item: item[0],
-            reverse=True,
-        )[:k]
+        if query_embedding and self._embedding_vectors:
+            ranked = sorted(
+                ((vector_cosine(query_embedding, vector), chunk) for vector, chunk in zip(self._embedding_vectors, self.chunks)),
+                key=lambda item: item[0],
+                reverse=True,
+            )[:k]
+            search_backend = "openai_embeddings"
+        else:
+            ranked = sorted(
+                ((cosine(query_vec, vector), chunk) for vector, chunk in zip(self._vectors, self.chunks)),
+                key=lambda item: item[0],
+                reverse=True,
+            )[:k]
+            search_backend = "local_term_vectors"
         evidence = [
             QueryEvidence(source=chunk["source"], title=chunk["title"], snippet=chunk["text"], score=round(score, 4))
             for score, chunk in ranked
@@ -111,14 +134,15 @@ class VectorKnowledgeBase:
             evidence=evidence,
             metrics={
                 "retrieval_mode": "vector",
+                "search_backend": search_backend,
                 "chunks_searched": len(self.chunks),
                 "evidence_count": len(evidence),
                 "top_score": evidence[0].score if evidence else 0,
             },
         )
 
-    def stats(self) -> dict[str, int]:
-        return {"chunks": len(self.chunks)}
+    def stats(self) -> dict[str, int | bool]:
+        return {"chunks": len(self.chunks), "openai_embeddings": bool(self._embedding_vectors)}
 
 
 class WikiKnowledgeBase:
@@ -228,6 +252,13 @@ class WikiKnowledgeBase:
         for entity in self._entities(question + " " + correction):
             self.entity_index[entity].add(page_id)
         return {"promoted_fact": fact["text"], "rating": rating}
+
+    def inspect(self) -> dict:
+        return {
+            "pages": list(self.pages.values()),
+            "facts": self.facts,
+            "entities": {entity: sorted(page_ids) for entity, page_ids in sorted(self.entity_index.items())},
+        }
 
     def stats(self) -> dict[str, int]:
         return {"pages": len(self.pages), "facts": len(self.facts), "entities": len(self.entity_index)}

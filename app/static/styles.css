@@ -14,8 +14,10 @@ pre { overflow: auto; background: #101828; color: #d1f7ff; border-radius: 16px; 
 .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
 article { border: 1px solid #e2e8f0; border-radius: 18px; padding: 20px; background: #fbfdff; }
 .answer { font-size: 1.05rem; line-height: 1.6; }
-.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 18px; }
 .kpi { border-radius: 16px; background: #eef2ff; padding: 14px; }
 .kpi strong { display: block; font-size: 1.6rem; color: #4f46e5; }
+details { margin-top: 16px; }
+summary { cursor: pointer; font-weight: 800; }
 li { margin-bottom: 10px; }
 @media (max-width: 800px) { .answers, .kpis { grid-template-columns: 1fr; } .hero { padding: 28px; } }

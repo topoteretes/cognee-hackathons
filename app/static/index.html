@@ -20,7 +20,12 @@
         <input id="files" name="files" type="file" accept=".html,.htm,text/html" multiple required />
         <button type="submit">Build vector + wiki KB</button>
       </form>
+      <button id="inspect-wiki" type="button">Inspect generated wiki</button>
       <pre id="status">No KB built yet.</pre>
+      <details id="wiki-inspector">
+        <summary>Generated wiki pages, facts, and entities</summary>
+        <pre id="wiki-json">Build a KB, then inspect the wiki.</pre>
+      </details>
     </section>
 
     <section class="card">

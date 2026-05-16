@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 from .html_processing import parse_html
 from .memory import CogneePermanentMemory, RedisSessionMemory
 from .models import HtmlDocument
+from .openai_service import OpenAIService
 from .retrieval import VectorKnowledgeBase, WikiKnowledgeBase, result_to_dict
 
 app = FastAPI(title="Askvio Wiki Memory PoC", version="0.1.0")
@@ -21,6 +22,7 @@ _vector_kb = VectorKnowledgeBase()
 _wiki_kb = WikiKnowledgeBase()
 _session_memory = RedisSessionMemory()
 _cognee_memory = CogneePermanentMemory()
+_openai_service = OpenAIService()
 _last_build: dict = {"documents": 0, "vector": {}, "wiki": {}, "cognee": {}}
 
 
@@ -47,6 +49,7 @@ def status() -> dict:
         "documents": len(_documents),
         "last_build": _last_build,
         "redis": {"url": _session_memory.url, "available": _session_memory.available},
+        "openai": _openai_service.status(),
     }
 
 
@@ -62,6 +65,7 @@ async def ingest(files: Annotated[list[UploadFile], File(description="One or mor
 
     _documents = parsed
     _vector_kb.build(_documents)
+    _vector_kb.set_embedding_vectors(_openai_service.embed_texts([chunk["text"] for chunk in _vector_kb.chunks]))
     _wiki_kb.build(_documents)
     lint_metrics = _wiki_kb.lint()
     cognee_metrics = await _cognee_memory.remember_documents(_documents)
@@ -71,6 +75,7 @@ async def ingest(files: Annotated[list[UploadFile], File(description="One or mor
         "vector": _vector_kb.stats(),
         "wiki": {**_wiki_kb.stats(), **lint_metrics},
         "cognee": cognee_metrics,
+        "openai": _openai_service.status(),
         "elapsed_ms": elapsed_ms,
     }
     _session_memory.event("ingest", "kb_built", _last_build)
@@ -79,18 +84,24 @@ async def ingest(files: Annotated[list[UploadFile], File(description="One or mor
 
 @app.post("/api/query")
 def query(payload: QueryRequest) -> dict:
+    query_embedding = _openai_service.embed_one(payload.question)
+
     started = time.perf_counter()
-    vector = _vector_kb.query(payload.question)
+    vector = _vector_kb.query(payload.question, query_embedding=query_embedding)
+    vector.answer, vector_llm = _openai_service.answer(payload.question, vector.evidence, "vector database", vector.answer)
     vector_ms = round((time.perf_counter() - started) * 1000, 2)
 
     started = time.perf_counter()
     wiki = _wiki_kb.query(payload.question)
+    wiki.answer, wiki_llm = _openai_service.answer(payload.question, wiki.evidence, "wiki memory", wiki.answer)
     wiki_ms = round((time.perf_counter() - started) * 1000, 2)
 
     vector_dict = result_to_dict(vector)
     wiki_dict = result_to_dict(wiki)
     vector_dict["metrics"]["latency_ms"] = vector_ms
+    vector_dict["metrics"].update(vector_llm)
     wiki_dict["metrics"]["latency_ms"] = wiki_ms
+    wiki_dict["metrics"].update(wiki_llm)
     comparison = {
         "wiki_evidence_delta": wiki_dict["metrics"].get("evidence_count", 0) - vector_dict["metrics"].get("evidence_count", 0),
         "wiki_top_score_delta": round(wiki_dict["metrics"].get("top_score", 0) - vector_dict["metrics"].get("top_score", 0), 4),
@@ -102,6 +113,11 @@ def query(payload: QueryRequest) -> dict:
         {"question": payload.question, "vector": vector_dict["metrics"], "wiki": wiki_dict["metrics"], "comparison": comparison},
     )
     return {"question": payload.question, "vector": vector_dict, "wiki": wiki_dict, "comparison": comparison}
+
+
+@app.get("/api/wiki")
+def inspect_wiki() -> dict:
+    return _wiki_kb.inspect()
 
 
 @app.post("/api/feedback")

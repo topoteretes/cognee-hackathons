@@ -35,3 +35,15 @@ def test_feedback_is_promoted_to_wiki_fact():
 
     assert result["rating"] == 5
     assert "two years" in answer.answer
+
+
+def test_vector_kb_uses_openai_embedding_backend_when_vectors_are_supplied():
+    document = parse_html("product.html", HTML)
+    vector = VectorKnowledgeBase()
+    vector.build([document])
+    vector.set_embedding_vectors([[1.0, 0.0] for _ in vector.chunks])
+
+    result = vector.query("Tell me about returns", query_embedding=[1.0, 0.0])
+
+    assert result.metrics["search_backend"] == "openai_embeddings"
+    assert result.metrics["top_score"] == 1.0

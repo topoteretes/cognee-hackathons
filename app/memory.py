@@ -64,15 +64,25 @@ class CogneePermanentMemory:
             import cognee
 
             remembered = 0
+            operation = "none"
             for doc in documents:
                 content = f"# {doc.title}\n\n" + "\n\n".join(
                     f"## {section['heading']}\n{section['text']}" for section in doc.sections
                 )
-                maybe_awaitable = cognee.remember(content)
+                if hasattr(cognee, "remember"):
+                    maybe_awaitable = cognee.remember(content, dataset_name="askvio_wiki")
+                    operation = "remember"
+                else:
+                    maybe_awaitable = cognee.add(content, dataset_name="askvio_wiki")
+                    operation = "add+cognify"
                 if asyncio.iscoroutine(maybe_awaitable):
                     await maybe_awaitable
                 remembered += 1
-            return {"enabled": True, "remembered": remembered, "message": "Distilled pages mirrored to Cognee permanent memory."}
+            if remembered and not hasattr(cognee, "remember"):
+                cognify_result = cognee.cognify(datasets=["askvio_wiki"])
+                if asyncio.iscoroutine(cognify_result):
+                    await cognify_result
+            return {"enabled": True, "remembered": remembered, "operation": operation, "message": "Distilled pages mirrored to Cognee permanent memory."}
         except Exception as exc:  # pragma: no cover - depends on external service/config
             self.last_error = str(exc)
             return {"enabled": True, "remembered": 0, "error": self.last_error}

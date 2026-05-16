@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+from app import main
 from app.main import app
 
 
@@ -12,6 +13,7 @@ HTML = b"""
 
 
 def test_ingest_query_and_feedback_api():
+    main._openai_service.api_key = None
     client = TestClient(app)
 
     ingest = client.post("/api/ingest", files=[("files", ("shipping.html", HTML, "text/html"))])
@@ -23,6 +25,11 @@ def test_ingest_query_and_feedback_api():
     body = query.json()
     assert "two business days" in body["wiki"]["answer"]
     assert body["vector"]["metrics"]["evidence_count"] >= 1
+    assert body["vector"]["metrics"]["llm_used"] is False
+
+    wiki = client.get("/api/wiki")
+    assert wiki.status_code == 200
+    assert wiki.json()["facts"]
 
     feedback = client.post(
         "/api/feedback",
