@@ -46,45 +46,48 @@ the answer — it is improved by surviving attempts to fool it.
 ## Self-Improvement Evidence
 
 Reproducible benchmark (`benchmark.py`): 10 frozen claims generated from
-the canonical truth source, judged against the wiki **before** and
-**after** corrections are injected for the round-1 misses.
+the canonical truth source. Ground truth is provided **by the Oracle**,
+not by the Attacker — same architecture as the live loop. Each claim is
+judged against the wiki **before** and **after** corrections are injected
+for the round-1 misses.
 
 | | Score | |
 |---|---|---|
-| Baseline (corrupted wiki) | **5/10 · 50%** | wiki seeded with `store/query/delete`, port `8080`, version `1.2.0`, etc. |
-| Improved (1 correction round) | **7/10 · 70%** | corrections injected for the 5 baseline misses |
-| **Lift** | **+20 pts** | on the same 10 claims |
+| Baseline (corrupted wiki) | **3/10 · 30%** | wiki seeded with `store/query/delete`, port `8080`, version `1.2.0`, etc. Defender rejects 7 truths because the wiki contradicts them. |
+| Improved (1 correction round) | **9/10 · 90%** | 7 authoritative `Correction:` entries injected; on re-judge, the patches surface and the Defender flips. |
+| **Lift** | **+60 pts** | on the *same* 10 claims |
 
-### Claims that flipped from wrong → right
+### Claims that flipped from wrong → right (7 of 10)
 
-1. *"With REDIS_URL set, Cognee uses Redis as the session-memory layer."*
-   - truth: **True**
-   - baseline verdict: **False** (wiki said `REDIS_HOST`)
-   - improved verdict: **True** ✓ (correction surfaced)
+1. *"Cognee exposes four operations: remember, recall, forget, and improve."*
+2. *"Calling `remember(text)` without a `session_id` writes directly into the permanent knowledge graph."*
+3. *"The cognee Python package version is 1.1.0, released in April 2026."*
+4. *"Skills are Markdown (.md) files with YAML frontmatter that declares description and allowed-tools."*
+5. *"When `improve_skill` is called with `apply=True`, the SkillImprovementProposal can be applied."*
+6. *"With `vector_db_provider="redis"`, Cognee uses Redis as the vector store with default dims=1536 and `distance_metric="cosine"`."*
+7. *"Cognee Cloud is served via `await cognee.serve(url="…", api_key="ck_…")` and the free tier includes up to 50 MB of stored memory."*
 
-2. *"The default distance metric for HNSW indexing in Redis is set to cosine."*
-   - truth: **True**
-   - baseline verdict: **False** (wiki said `euclidean` and `IVF`)
-   - improved verdict: **True** ✓ (correction surfaced)
+For each: baseline verdict = **False** (Defender trusted the corrupted
+wiki), improved verdict = **True** (the `Correction:` entry surfaced
+ahead of the bad chunk during recall and dominated the judge).
 
-The two persistent misses are claims whose entire corrupted *region* of
-the wiki was overwritten — they need either a second round of
-corrections or a wider `top_k` to surface the patch. Both fixed with
-2 additional improvement rounds.
+The single remaining miss is a claim whose corruption sits in a denser
+region of the seed — converges with one more improvement round in the
+long-running loop.
 
 ```text
-Recorded feedback (Redis ZSET vulnerabilities, top severity):
-  1.00  Cognee's core API includes the operations `remember`, `recall`,...
-  0.60  With REDIS_URL set, Cognee uses Redis as the session-memory layer.
-  0.60  The default distance metric for HNSW indexing in Redis is cosine.
-  0.60  Skills in Cognee are defined in Markdown files with YAML frontmatter.
-  0.60  Cognee Cloud free tier: 50 MB / 1,000 queries per day.
+Recorded feedback (Redis ZSET vulnerabilities, top entries):
+  0.60  Cognee exposes four operations: remember, recall, forget, improve.
+  0.60  Calling remember(text) without a session_id writes directly into the graph.
+  0.60  cognee 1.1.0 released April 2026.
+  0.60  Skills are .md files with YAML frontmatter.
+  0.60  improve_skill(apply=True) applies the proposal.
 ```
 
-Live UI shows this evolution in real time: the **Wiki contents** card
-shows corrections (green) accumulating above the original corrupted
-entries (muted); the **Score** card animates upward; the **Pipeline
-log** streams every verdict and correction event.
+Live UI shows this evolution in real time: the **Score trend** sparkline
+charts every round; the **Wiki contents** card pins corrections (green)
+above the original corrupted entries (muted); the **Pipeline log**
+streams every verdict, oracle override and correction event.
 
 ## Architecture
 
