@@ -3,7 +3,7 @@
 ## Team
 
 - Team name: StudyAtlas
-- Participants: TODO: Pratik Manghwani, Jilie SUn, Zhenghan, Huong
+- Participants: Pratik Manghwani, Jilie Sun, Zhenghan, Huong
 - Wiki / project name: StudyAtlas
 
 ## Wiki Overview
@@ -311,7 +311,7 @@ COGNEE_TIMEOUT_SECONDS
 
 ## Demo
 
-- Live demo link (Loom, YouTube, etc.) or local instructions: TODO: add final video link or "Run locally with the commands above."
+- Live demo link (Loom, YouTube, etc.) or local instructions: Run locally with the commands above.
 - 3-minute pitch outline:
 
 ```text
@@ -334,9 +334,29 @@ COGNEE_TIMEOUT_SECONDS
    Show Redis decay: a mastery bar drops below 40%, the decay toast fires, and lint flags the fading concept as review-worthy.
 ```
 
+## Redis Usage
+
+Beyond caching, StudyAtlas uses Redis as a live model of student memory.
+
+Keys and structures in the repo:
+
+```text
+mastery:{session}            sorted set       per-concept mastery scores
+forget:{session}:{concept}   TTL key          forgetting timer
+events:{session}             stream           ingest / query / rating / decay log
+events:decay:{session}       pub/sub channel  live decay warnings (SSE to UI)
+wiki_chunks                  RedisVL index    semantic wiki chunk search
+```
+
+- Sorted sets back the mastery bars: `ZADD` / `ZINCRBY` on rating, `ZRANGEBYSCORE` to surface fading concepts to Lint.
+- TTL keys model forgetting; expiration is accelerated in the demo via `DEMO_TIME_SCALE`.
+- Streams record every ingest, query, rating, save, and decay event for the session.
+- Pub/Sub + keyspace notifications drive the live "you are losing this" toast in the UI through a server-sent-events bridge.
+- RedisVL indexes wiki chunks at ingest time; `POST /query` returns `redisvl_hits` alongside local BM25 hits and Cognee recall, so the answer cites the strongest of the three signals.
+
 ## Links
 
-- Repo: TODO: add GitHub repository URL
+- Repo: https://github.com/pratikm778/redis-hack
 - Slides / writeup: `Redis_Cognee_Hackathon.pptx`
 - Anything else:
   - Main README: `README.md`
