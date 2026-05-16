@@ -12,20 +12,20 @@ Personalized Wiki for Juniper & Finch Coffee builds a user-specific wiki for a f
 
 - Domain or data sources: synthetic cafe reviews, official cafe facts, neighborhood/logistics notes, user profile text, generated wiki runs.
 - Primary use case: help a customer understand whether a small business fits their exact preferences and constraints.
-- What makes it stand out: the same business produces a different wiki when user facts change, and the same user produces a different wiki when fresh relevant reviews are added.
+- What makes it stand out: the same business produces a different wiki when user facts change, and the same user produces a different wiki when fresh relevant reviews are added or removed.
 
 ## The Three Operations
 
 ### Ingest
 
-- What goes in: 420 synthetic reviews, newly added review text, user profile text, parsed facts, retrieved evidence, conflict notes, generated wiki text.
+- What goes in: 420 synthetic reviews, newly added/deleted review text, user profile text, parsed facts, retrieved evidence, conflict notes, generated wiki text.
 - How it is captured: reviews are stored under `pbw:review:*` Redis hashes; each generation writes `pbw:session:<session_id>` Redis session memory; generated artifacts are added to Cognee with `cognee.add(...)` and `cognee.cognify(...)`.
 - Code entry point: `server.py` -> `ReviewIndex.index`, `ReviewIndex.write_session_memory`, `remember_with_cognee`.
 
 ### Query + Self-improve
 
 - How users query the wiki: edit `User Info`, click `Generate Wiki`.
-- Where feedback comes from: the current user text and newly added reviews are treated as feedback signals. Adding or deleting a fact changes the generated wiki; adding a review changes the evidence corpus.
+- Where feedback comes from: the current user text and newly added/deleted reviews are treated as feedback signals. Adding or deleting a fact changes the generated wiki; adding or deleting a review changes the evidence corpus.
 - How feedback updates the wiki: the next generation uses the latest user text and current Redis-backed review evidence. The resulting session bundle is promoted from Redis into Cognee as permanent graph memory.
 - Code entry point: `server.py` -> `generate_personalized_wiki`.
 
@@ -72,10 +72,16 @@ Best fit includes a manual-brew / pour-over conversation plan for a quiet one-on
 - Result: the new wiki cites `r421` and mentions Gesha/manual-brew evidence.
 - Score: pass if `r421` appears in the evidence set and generated wiki.
 
+### Review-Corpus Deletion
+
+- Query / task: delete the same user-added `r421` review, then regenerate the same user profile.
+- Result: `r421` disappears from the review browser, retrieved evidence set, and generated wiki.
+- Score: pass if `r421` is absent from the evidence cards and no longer cited in the generated wiki.
+
 ## Architecture
 
 ```text
-[User Info textarea]           [/review add-review page]
+[User Info textarea]           [/review add/delete page]
           |                              |
           v                              v
        Python API ----------------> Redis review hashes
@@ -149,6 +155,7 @@ LLM_REASONING_EFFORT=low
 4. Self-improve step: add manual-brew meetup preference and regenerate.
 5. Improved query: delete laptop/work-block fact and show that the related recommendation disappears.
 6. Review update: add r421 manual-brew review and show the same user info now cites the new review.
+7. Review deletion: delete r421 and show the same user info no longer cites that review.
 ```
 
 ## Links
