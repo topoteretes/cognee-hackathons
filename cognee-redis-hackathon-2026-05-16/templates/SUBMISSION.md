@@ -215,7 +215,7 @@ PORT
 
 ## Demo
 
-* Live demo link: Add Loom or YouTube link after recording.
+* Live demo link: will be provided seperately 
 * Local demo instructions: Run `npm run dev`, open `http://127.0.0.1:3000`, then follow the pitch below.
 * 3-minute pitch outline:
 
