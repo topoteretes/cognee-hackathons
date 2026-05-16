@@ -299,7 +299,7 @@ the default classifier model. The default Redis URL is
 
 ## Links
 
-- Repo: [TODO](https://github.com/gasperpre/discord-memory-wiki)
+- Repo: https://github.com/gasperpre/discord-memory-wiki
 - Slides / writeup: TODO
 - Anything else: Architecture notes in `docs/ARCHITECTURE.md`; skills in
   `skills/discord-distill`, `skills/discord-answer`, and `skills/discord-lint`.
