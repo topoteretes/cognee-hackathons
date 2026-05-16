@@ -201,19 +201,10 @@ cognee-cli forget --all
 
 Launch the local UI with `cognee-cli -ui` (web app at http://localhost:3000).
 
-### Cognee Cloud (optional)
+### Cognee Cloud (not recommended for this hackathon)
 
-Skip local infra and point at a managed instance:
+Cognee Cloud does not support the features required for this hackahon ... yet!
 
-```python
-import cognee
-
-await cognee.serve(
-    url="https://your-instance.cognee.ai",
-    api_key="ck_...",
-)
-await cognee.remember("important context")
-```
 
 ## Skills & the Self-Improvement Loop
 
