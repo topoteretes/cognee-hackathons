@@ -48,9 +48,13 @@ prompt or new weights — same agent, smarter every run.
 - How feedback updates the wiki: each proposal becomes a `SkillRunEntry` in
   Cognee with `apply=False` (proposes a rewrite). The proposal IDs are then
   passed to `improve_skill(proposal_id, apply=True)` which commits the
-  rewrite into the graph. Optionally the new skill body is also flushed
-  back to disk so the next run picks it up.
+  rewrite into the graph. The next agent run pulls the rewritten skill via
+  `cognee.recall("…current rules in the '{skill}' editing skill…")` — the
+  SKILL.md on disk stays as the *seed*, and the Cognee graph is the
+  evolving source of truth.
 - Code entry points: `llmwiki/critique.py`, `llmwiki/self_improve.py`
+  (propose: `self_improve.py:96–111`, apply: `self_improve.py:138–144`,
+  recall-back: `self_improve.py:157–165`)
 
 ### Lint
 
@@ -138,12 +142,13 @@ commit path:          cognee.improve_skill(apply=True)
               cognee.remember(..., session_id=<slug>)
                                  ▼
                 ┌────────────────────────────────────┐
-                │ REDIS  — session memory             │  hot, ephemeral
+                │ REDIS  — session memory + indexes   │  hot, ephemeral
                 │  · per-run observations             │  per-conversation
-                │  · agent intermediate thoughts      │  forgets per run
-                │  · event stream (XADD/XRANGE)       │
-                │  · pub/sub (llmwiki:live)           │
-                │  · RediSearch HNSW over clips       │
+                │    (via cognee session_id routing)  │  forgets per run
+                │  · event stream (XADD/XREVRANGE)    │
+                │    llmwiki:events, maxlen 10_000    │
+                │  · RediSearch HNSW vector index     │
+                │    llmwiki:clip-vectors (COSINE)    │
                 └────────────────┬───────────────────┘
                                  │
                        distillation (improve_skill)
@@ -165,24 +170,35 @@ commit path:          cognee.improve_skill(apply=True)
 
 ### Redis-as-session-memory
 
-- What the agent writes into Redis:
-  - per-run Gemini observation answers (`session_remember` event)
-  - intermediate Claude reasoning steps (session_id-scoped)
-  - clip-vector embeddings for semantic retrieval
-  - every pipeline step as a stream entry (`XADD llmwiki:events`)
+- What goes into Redis (and how):
+  - **session keys** — populated *indirectly* by Cognee. Every
+    `cognee.remember(text, session_id=<run_slug>)` and
+    `memory.remember_session(...)` call lands in Cognee's Redis backend.
+    Our application code never `r.set`s a session key directly.
+  - **clip-vector hashes** — written directly by `upsert_clip()` in
+    `llmwiki/redis_use.py:98–110`; stored as Redis hashes under the
+    `clip:*` prefix with a 1536-dim FLOAT32 embedding field.
+  - **event stream** — every `publish_event(kind, payload)` call
+    (`llmwiki/redis_use.py:23–35`) `XADD`s to `llmwiki:events` with
+    `maxlen=10_000 approximate=True`.
 - How and when content is distilled into the graph:
-  - immediately after critique: `SkillRunEntry` is `remember`ed *without*
-    `session_id`, which routes it to the permanent graph as a proposal
-  - `improve_skill(apply=True)` commits the proposed SKILL.md body into
-    the graph (and optionally to disk)
+  - immediately after critique: a `SkillRunEntry` is `remember`ed with
+    `skill_improvement={"apply": False, "score_threshold": 0.9}` — this
+    creates a proposal in the Cognee graph.
+  - `improve_skill(skill, proposal_id=..., apply=True)` commits the
+    rewritten SKILL.md body into the graph (graph only — disk file is
+    intentionally left as the seed).
 - What stays in Redis vs. what gets promoted:
-  - stays: raw Gemini observations, agent thoughts, vector embeddings,
-    event stream entries — anything tied to a `session_id`
-  - promoted: SKILL.md content, SkillRunEntry, proposals, applied rewrites
+  - stays: per-run scratchpad (via cognee session keys), clip-vector
+    hashes, event-stream entries.
+  - promoted: SKILL.md graph nodes, SkillRunEntry history, improvement
+    proposals, applied rewrites.
 - How distillation quality improved between baseline and improved run:
-  - baseline: 0 cumulative proposals in the graph; agent runs on seed rules.
-  - after run v1: 3 proposals committed via `improve_skill(apply=True)`;
-    next run loads the rewritten skills automatically.
+  - baseline: 0 cumulative proposals in the graph; agent runs on seed
+    rules read straight from `my_skills/`.
+  - after run v1: 3 proposals committed via `improve_skill(apply=True)`
+    across 3 skills (cut-detection, broll-selection, on-screen-text).
+    The next run pulls these via `cognee.recall(...)`.
   - the graph grows monotonically with each run while Redis stays
     constant-size (capped stream `maxlen=10_000`).
 
