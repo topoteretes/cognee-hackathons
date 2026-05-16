@@ -298,5 +298,7 @@ python -m cognee -ui   # Opens at http://localhost:3000
 | 9–10 | Cognee UI | "Every node. Every edge. The graph that gets smarter after every deal." |
 
 ---
+<img width="3018" height="1808" alt="image" src="https://github.com/user-attachments/assets/a817b4eb-ce94-4de5-a940-474da3ba5c69" />
+
 
 *Self-Evolving GTM Brain — Cognee × Redis Hackathon 2026*
