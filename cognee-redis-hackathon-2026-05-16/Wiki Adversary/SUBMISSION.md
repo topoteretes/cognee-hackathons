@@ -166,6 +166,11 @@ Everything the UI shows comes through Redis. No FastAPI sidecar, no
 filesystem, no extra port — the Python loop and the Next.js dashboard
 only talk to each other through Redis keys.
 
+**Running on Redis Cloud** (Essentials free tier) so the same instance
+is reachable from anywhere — handy for the live demo. Switching
+between local Redis (`brew services start redis`) and the cloud is
+just a `REDIS_URL` env var; the code is unchanged.
+
 ## Agents / Roles
 
 ```text
