@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Askvio Wiki Memory PoC</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <p class="eyebrow">Askvio × Cognee × Redis Hackathon PoC</p>
+      <h1>Compare classic vector retrieval with a self-improving LLM wiki.</h1>
+      <p>Upload ecommerce HTML pages, build both KBs, ask the same question, and capture feedback that is stored in Redis session memory and distilled into the wiki.</p>
+    </header>
+
+    <section class="card">
+      <h2>1. Upload HTML and build KBs</h2>
+      <form id="upload-form">
+        <input id="files" name="files" type="file" accept=".html,.htm,text/html" multiple required />
+        <button type="submit">Build vector + wiki KB</button>
+      </form>
+      <button id="inspect-wiki" type="button">Inspect generated wiki</button>
+      <pre id="status">No KB built yet.</pre>
+      <details id="wiki-inspector">
+        <summary>Generated wiki pages, facts, and entities</summary>
+        <pre id="wiki-json">Build a KB, then inspect the wiki.</pre>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>2. Ask Askvio</h2>
+      <form id="query-form">
+        <input id="question" type="text" placeholder="e.g. What is the return policy?" required />
+        <button type="submit">Ask both systems</button>
+      </form>
+      <div id="kpis" class="kpis"></div>
+      <div class="answers">
+        <article>
+          <h3>Vector baseline</h3>
+          <p id="vector-answer" class="answer">Waiting for a question…</p>
+          <ul id="vector-evidence"></ul>
+        </article>
+        <article>
+          <h3>Wiki memory</h3>
+          <p id="wiki-answer" class="answer">Waiting for a question…</p>
+          <ul id="wiki-evidence"></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Self-improve the wiki</h2>
+      <form id="feedback-form">
+        <textarea id="correction" placeholder="Write a better answer or missing fact for the last question." required></textarea>
+        <label>Rating <input id="rating" type="number" min="1" max="5" value="5" /></label>
+        <button type="submit">Distill feedback into wiki</button>
+      </form>
+      <pre id="feedback-result">Feedback will appear here.</pre>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
