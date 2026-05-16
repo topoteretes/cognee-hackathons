@@ -1,0 +1,4 @@
+interface:
+  display_name: "Discover OS"
+  short_description: "Interview users and recommend a Linux OS"
+  default_prompt: "Use $discover-os to help me choose a Linux OS."

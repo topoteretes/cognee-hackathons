@@ -1,0 +1,11 @@
+[project]
+name = "linux-wiki-hooks"
+version = "0.1.0"
+description = "Hook utilities for the Linux wiki."
+requires-python = ">=3.10"
+dependencies = [
+    "python-dotenv>=1.0.1",
+]
+
+[tool.uv]
+package = false

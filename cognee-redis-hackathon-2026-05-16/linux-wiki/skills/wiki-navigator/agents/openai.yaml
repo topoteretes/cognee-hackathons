@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wiki Navigator"
+  short_description: "Route users to the right Linux wiki pages"
+  default_prompt: "Use $wiki-navigator to help me find the right Linux wiki entry point."
