@@ -1,0 +1,32 @@
+[
+  {
+    "id": "7823",
+    "department": "Internal Medicine",
+    "date": "2025-05-01",
+    "patient_age": 52,
+    "patient_sex": "M",
+    "chief_complaint": "Type 2 Diabetes, poorly controlled",
+    "notes": "HbA1c 9.2%. Poorly controlled blood sugar over 8 years. No ophthalmology referral noted.",
+    "entities": ["Type 2 Diabetes", "HbA1c", "hyperglycemia"]
+  },
+  {
+    "id": "8104",
+    "department": "Ophthalmology",
+    "date": "2025-05-08",
+    "patient_age": 47,
+    "patient_sex": "F",
+    "chief_complaint": "Progressive vision loss, right eye",
+    "notes": "Fundoscopy: microaneurysms and retinal hemorrhage noted. No diabetes screening ordered.",
+    "entities": ["vision loss", "retinal hemorrhage", "microaneurysms"]
+  },
+  {
+    "id": "3",
+    "department": "General",
+    "date": "2025-05-16",
+    "patient_age": 58,
+    "patient_sex": "M",
+    "chief_complaint": "Sudden vision blur and floaters",
+    "notes": "58-year-old male with 10-year history of Type 2 Diabetes presents with sudden blurring of vision and floaters in left eye. HbA1c 10.1%. No prior ophthalmology referral in chart.",
+    "entities": ["Type 2 Diabetes", "vision blur", "floaters", "HbA1c"]
+  }
+]
