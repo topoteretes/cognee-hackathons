@@ -1,4 +1,0 @@
-interface:
-  display_name: "Wiki Lint"
-  short_description: "Audit wiki health, links, sources, and freshness"
-  default_prompt: "Use $wiki-lint to audit the Linux wiki and report issues before editing."
