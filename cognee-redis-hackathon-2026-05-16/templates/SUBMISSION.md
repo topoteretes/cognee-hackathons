@@ -168,4 +168,4 @@ Problem / idea — AIDS memorial archives exist but are static; people, relation
 
 ## Links
 
-- Repo: https://github.com/kevrcress/whatremains/
+- Repo: https://github.com/kevrcress/HackathonWhatRemains
