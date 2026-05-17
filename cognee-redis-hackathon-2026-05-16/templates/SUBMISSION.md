@@ -8,46 +8,98 @@
 
 ## Wiki Overview
 
-Redline is a living safety wiki and preflight layer for coding agents. It ingests trusted security guidance into durable wiki rules, retrieves the most relevant rules before an agent writes code, checks proposed code or untrusted content before action, and records accepted catches as observed violations, regression tests, and learned findings. It self-improves by promoting human/agent feedback and novel security findings into the wiki so future agent runs can recall the new risk.
+Redline is a living security wiki that acts as a safety layer between coding agents and the code they produce. It solves a real problem: coding agents (Claude, Codex, Copilot) routinely introduce SQL injection, hardcoded secrets, missing auth checks, and other vulnerabilities because they have no persistent memory of security rules. Redline gives them one.
 
-- Domain or data sources: secure coding rules from `raw_sources/`, generated wiki entries in `wiki/`, observed violations, regression tests, agent findings, and optional Redis/Cognee memory.
-- Primary use case: stop coding agents from introducing known security flaws before code is finalized.
-- What makes it stand out: it works as both a local deterministic demo and a connected memory system: Redis stores hot session traces and fast-path fingerprints, while Cognee stores durable cross-session safety knowledge.
+The wiki currently holds **12 safety rules**, **13 observed violations**, **13 regression tests**, and **4 agent-discovered findings** -- and it grew from 10 seeded rules to 12 entirely through the self-improvement loop described below. Two rules (`learned_open_redirect_001` and `learned_csv_formula_injection_001`) were created automatically when agents discovered risks the wiki didn't yet cover.
+
+- **Domain / data sources:** OWASP-sourced Markdown security notes in `raw_sources/`, generated structured wiki entries in `wiki/` (JSON + Markdown), agent-submitted findings, accepted preflight violations, regression tests, and user feedback.
+- **Primary use case:** prevent coding agents from introducing known security flaws before code is finalized -- and learn from novel flaws so they are never missed again.
+- **What makes it stand out:** Redline is not a static rule list. It is a closed-loop system: agents query the wiki before writing code, the wiki checks their output, agents report novel risks back, and the wiki automatically generates new durable rules from those reports. It operates as both a fully local deterministic system and a connected memory system using Redis (hot session memory, vector search, fingerprints) and Cognee (durable cross-session knowledge graph).
 
 ## The Three Operations
 
-### Ingest
+### 1. Ingest
 
-- What goes in (documents, conversations, runs, ...): trusted Markdown safety notes, user-ingested rules, accepted preflight violations, safe rewrites, regression tests, feedback, and novel agent security findings.
-- How it is captured (`cognee.remember(...)`, custom pipeline, ...): `POST /ingest` converts source text into a `SafetyRule`, writes local Markdown/JSON wiki files, mirrors rules into Redis when available, and calls the Cognee-compatible `MemoryAdapter.remember_durable(...)`.
-- Code entry point: `backend/app/main.py` routes `/ingest`, `/accept-rewrite`, `/agent/finding`; wiki writes live in `backend/app/wiki_writer.py`.
+**What goes in:** Trusted Markdown security notes, user-ingested rules via the UI, accepted preflight violations with safe rewrites, regression test seeds, and novel agent-discovered security findings.
 
-### Query + Self-improve
+**How it is captured -- step by step:**
 
-- How users query the wiki: the React UI calls `/wiki`, `/wiki/recent`, `/preflight`, and `/memory/recall`; coding agents call `scripts/redline_context.py "<task>"` before editing.
-- Where feedback comes from (user rating, agent critic, eval, ...): UI feedback on preflight results, accepted safe rewrites, and agent-discovered findings submitted through `scripts/redline_finding.py` or `/agent/finding`.
-- How feedback updates the wiki (`SkillRunEntry`, edge re-weighting,
-  graph rewrite, ...): low-score feedback creates an improvement proposal; accepted rewrites create observed violation and regression-test memories; novel findings are deduped against existing memory and logged as `wiki/agent_findings` plus learned safety rules for supported categories.
-- Code entry point: `backend/app/main.py` routes `/agent/context`, `/preflight`, `/feedback`, `/feedback/{id}/apply-improvement`, `/agent/finding`; learned rule templates live in `backend/app/learned_rules.py`.
+1. **UI/API ingest** (`POST /ingest`): User submits a title, source, and rule text. `backend/app/rule_store.py → extract_rule_from_ingest()` normalizes the text into a structured `SafetyRule` with id, title, category, severity, rule_text, unsafe_patterns, and safe_patterns. The rule is written as both JSON and Markdown to `wiki/safety_rules/`.
 
-### Lint
+2. **Redis hot memory**: The rule is stored via `RedisMemoryAdapter.remember_rule()` which (a) writes the rule document to `rule:{id}`, and (b) builds a vector-embedded memory document at `memory:rule:{id}` using a 128-dimension hash embedding for RediSearch vector similarity.
 
-- What "linting" means in your wiki (dedupe, conflict resolution, stale
-  pruning, ...): checks duplicate safety rules, conflicting severities for the same risk type, and stale live memory when no recent Redis Stream events exist.
-- How it runs (scheduled, on-write, on-demand): on demand through the UI or `POST /lint`, with dry-run support for safe demos.
-- Concrete lint behavior: a clean run returns `PASS`; duplicate rule content produces a `duplicates` finding, mismatched severities for the same risk type produce a `conflicts` finding, and no recent Redis events produce a `stale` finding.
-- Code entry point: `backend/app/main.py` route `/lint` and helper `_lint_wiki(...)`.
+3. **Cognee durable memory**: `MemoryAdapter.remember_durable("safety_rule", ...)` calls `cognee.add()` with the rule payload and then `cognee.cognify()` to integrate it into the persistent knowledge graph.
+
+4. **Agent-discovered findings** (`POST /agent/finding` or `scripts/redline_finding.py`): When an agent encounters a security issue not covered by the wiki, it calls the finding endpoint. The system first **deduplicates** by searching both Redis vector memory and local `wiki/agent_findings/*.json` using token-overlap scoring with a 0.74 similarity threshold. If no prior match exists, it (a) writes the finding to `wiki/agent_findings/`, (b) checks if the finding category matches a `LearnedRuleTemplate` in `backend/app/learned_rules.py`, and if so (c) **automatically generates a new safety rule** and writes it to `wiki/safety_rules/`. This is how `learned_open_redirect_001` and `learned_csv_formula_injection_001` were created.
+
+5. **Accepted rewrites** (`POST /accept-rewrite`): When a user accepts a safe rewrite from a preflight catch, Redline writes both an observed violation to `wiki/observed_violations/` and a regression test to `wiki/regression_tests/`, plus creates a Redis fingerprint so the same pattern triggers an instant fast-path block on future encounters.
+
+**Code entry points:** `backend/app/main.py` routes `/ingest`, `/accept-rewrite`, `/agent/finding`; rule persistence in `backend/app/rule_store.py`; wiki file writes in `backend/app/wiki_writer.py`; learned rule templates in `backend/app/learned_rules.py`.
+
+### 2. Query + Self-Improve
+
+**How agents query the wiki -- the complete retrieval flow:**
+
+1. Before writing any code, the agent runs `scripts/redline_context.py "<task description>"`. This script calls `POST /agent/context` (or falls back to local wiki retrieval if the backend is unavailable).
+
+2. **Rule scoring**: Every rule in `wiki/safety_rules/*.json` is scored against the task description using two signals: (a) **risk-type hint matching** -- if the task mentions SQL keywords, the SQL injection rule gets +8 points; (b) **term overlap** -- each 4+ character token in the task is checked against the rule's title, category, rule_text, unsafe_patterns, and safe_patterns. Rules are ranked by score, then severity, then title.
+
+3. **Top-K retrieval**: The top 5 rules are returned. If fewer than 3 rules scored above zero, high-severity baseline rules (critical/high) are included as safety padding.
+
+4. **Redis vector recall**: In parallel, `RedisMemoryAdapter.search_similar()` runs a KNN vector search on the `idx:safety_memories` RediSearch index to find similar prior violations, findings, and regression tests from memory.
+
+5. **The agent receives** each rule's id, title, severity, category, source, rule_text, unsafe_patterns, safe_patterns, and a `why_relevant` explanation. It uses this context while coding.
+
+**After writing code, the agent runs preflight:**
+
+1. `scripts/redline_preflight.py --diff` reads the current `git diff`, strips test/doc files, and sends only production-code additions to `POST /preflight`.
+
+2. **Redis Reflex Memory (fast path)**: Before running any detectors, the system checks if the content matches a stored fingerprint. Fingerprints are keyed by risk type + language + pattern (e.g., `sql_injection:python:string_interpolated_sql`). If a fingerprint matches, the preflight immediately returns `REDLINE TRIGGERED` without detector execution -- this is how Redline gets faster over time.
+
+3. **Deterministic detectors** (`backend/app/detectors.py`): Five dedicated detectors run in sequence:
+   - `detect_sql_injection`: 4 regex patterns catching f-string interpolation, concatenation, `.format()`, and template literal injection in SQL
+   - `detect_prompt_injection`: 9 phrase patterns for instruction-override attempts in untrusted content
+   - `detect_secrets`: 6 regex patterns for private keys, API keys (sk-*, ghp_*), hardcoded credentials, connection strings, and bearer tokens
+   - `detect_unsafe_execution`: 5 patterns for eval(), exec(), shell=True, child_process.exec, and destructive commands
+   - `detect_missing_authorization`: heuristic checking if routes touch user-owned resources without auth middleware
+
+4. **Semantic memory enrichment**: Even if detectors pass, Redis vector search can upgrade a PASS to WARNING if a high-risk similar memory (score >= 0.75) is found -- preventing near-miss escapes.
+
+5. **Verdicts**: `REDLINE TRIGGERED` (must fix), `WARNING` (explain or fix), `NEEDS HUMAN REVIEW`, or `PASS`. Each verdict includes matched rules, evidence with line numbers and snippets, an explanation, and a safe rewrite suggestion.
+
+**How feedback drives self-improvement:**
+
+- **Low-score feedback** (score < 0.5 via `POST /feedback`): Creates an `ImprovementProposal` that can be applied through `/feedback/{id}/apply-improvement`, updating Cognee's knowledge graph via `cognee.add()` + `cognee.cognify()`.
+- **Novel agent findings**: When an agent discovers a risk category the wiki doesn't cover (open redirect, SSRF, mass assignment, CSV formula injection), `redline_finding.py` logs the finding AND generates a learned rule if the category matches a `LearnedRuleTemplate`. The templates contain OWASP-sourced rules with unsafe patterns, safe patterns, source URLs, and severity levels.
+- **Accepted rewrites**: Each accepted rewrite creates an observed violation + regression test, strengthening the wiki's coverage for that exact attack pattern.
+
+**Code entry points:** `backend/app/main.py` routes `/agent/context`, `/preflight`, `/feedback`, `/feedback/{id}/apply-improvement`, `/agent/finding`; context retrieval in `_agent_rule_contexts()`; detector pipeline in `backend/app/detectors.py`; learned rules in `backend/app/learned_rules.py`; rewrite suggestions in `backend/app/rewrite.py`.
+
+### 3. Lint
+
+**What linting means for Redline's wiki:** The wiki is a living knowledge base that grows through multiple channels (ingest, agent findings, learned rules, accepted rewrites). Without hygiene, it accumulates duplicates, contradictions, and stale state. The lint operation keeps the wiki trustworthy.
+
+**Three concrete lint checks:**
+
+1. **Duplicate detection**: Iterates every `wiki/safety_rules/*.json`, normalizes each rule's `title + rule_text` to lowercase, and hashes the result. If two rules produce the same hash, a `duplicates` finding is emitted referencing both file paths. This prevents the wiki from growing noisy with redundant rules.
+
+2. **Severity conflict detection**: Groups rules by risk type (extracted from rule ID or category). If two rules for the same risk type (e.g., `sql_injection`) declare different severities, a `conflicts` finding is emitted. This catches inconsistencies that would confuse agents about how serious a risk is.
+
+3. **Stale memory detection**: Queries Redis Streams (`stream:redline_events`) for recent events. If no events exist, a `stale` finding warns that live memory has gone cold and a preflight should be run to refresh it. This ensures the hot memory layer stays active.
+
+**How it runs:** On demand via `POST /lint` from the UI or API, with `dry_run` support so you can preview issues without applying changes. The response includes a summary count of duplicates, conflicts, and stale findings, plus the overall status (`PASS` or `WARNING`).
+
+**Code entry point:** `backend/app/main.py` route `/lint` and helper `_lint_wiki()` (lines 897-964).
 
 ## Self-Improvement Evidence
 
-Show that the wiki actually got smarter. Concrete before/after beats prose.
+### Baseline Run (Before)
 
-### Baseline Run
-
-- Query / task: "Add a post-login redirect helper that reads `next` from the query string and redirects there."
-- Result: Redline had seeded rules for SQL injection, prompt injection, secrets, unsafe execution, and authorization, but no open-redirect rule yet. The agent recognized the gap and logged `finding_99e9ffc827d0`, which is documented in `wiki/agent_findings/finding_99e9ffc827d0.md`.
-- Score (your own metric, judge-readable): 0.35 coverage score. The wiki captured the issue as `NEEDS HUMAN REVIEW`, but did not yet have a durable open-redirect rule.
-- Recorded feedback:
+- **Task:** "Add a post-login redirect helper that reads `next` from the query string and redirects there."
+- **What happened:** Redline had 10 seeded rules covering SQL injection, prompt injection, secrets management, unsafe execution, authorization, XSS, input validation, least privilege, hallucination risk, dependency risk, and unsafe output handling. None of them covered open redirects. The agent context retrieval returned baseline rules, but none were specifically relevant to the redirect task.
+- **Agent action:** The coding agent recognized the gap, called `scripts/redline_finding.py` with title "Open redirect risk in post-login redirect helper", description about the missing same-origin validation, and evidence about the `next` query parameter. The system searched existing findings (0 matches above threshold), logged `finding_99e9ffc827d0` to `wiki/agent_findings/`, and automatically generated `learned_open_redirect_001` from the OWASP Unvalidated Redirects template.
+- **Coverage score:** 0.35 -- the wiki flagged the issue as `NEEDS HUMAN REVIEW` but lacked a durable rule to proactively prevent it.
+- **Recorded feedback:**
 
 ```text
 error_type: missing_rule
@@ -56,134 +108,196 @@ feedback: Add durable guidance for open redirects and same-origin/allowlist vali
 success_score: 0.35
 ```
 
-### Improved Run
+### Improved Run (After)
 
-- Query / task: "Add a post-login redirect helper that reads `next` from the query string and redirects there."
-- Result: The wiki now contains `learned_open_redirect_001`, sourced to OWASP Unvalidated Redirects and Forwards guidance, with unsafe patterns and safe rewrites for redirect validation in `wiki/safety_rules/learned_open_redirect_001.md`.
-- Score: 0.85 coverage score. The agent context can retrieve the learned rule before coding, and the Recently Added page shows the finding/rule pair.
-- What changed in the wiki between runs:
+- **Task:** Same -- "Add a post-login redirect helper that reads `next` from the query string and redirects there."
+- **What happened:** The wiki now contains `learned_open_redirect_001` (sourced from OWASP Unvalidated Redirects and Forwards Cheat Sheet). When the agent runs `redline_context.py` with this task, the scoring system matches "redirect" against the rule's title, unsafe patterns ("redirects directly to a next, returnUrl, redirect, or url parameter"), and safe patterns ("Allow only relative same-origin paths"). The rule scores high and is returned in the top results.
+- **Coverage score:** 0.85 -- the agent now receives explicit guidance about unsafe redirect patterns and safe alternatives before writing any code.
+- **Concrete wiki diff:**
 
 ```text
-Before:
-No open-redirect rule existed in wiki/safety_rules.
-The issue could only be handled by general agent judgment.
+FILES ADDED (by the self-improvement loop, not by a human):
++ wiki/agent_findings/finding_99e9ffc827d0.json   (novel finding record)
++ wiki/agent_findings/finding_99e9ffc827d0.md      (human-readable finding)
++ wiki/safety_rules/learned_open_redirect_001.json (auto-generated learned rule)
++ wiki/safety_rules/learned_open_redirect_001.md   (human-readable rule)
 
-After:
-wiki/agent_findings/finding_99e9ffc827d0.md records the novel issue.
-wiki/safety_rules/learned_open_redirect_001.md records a durable learned rule.
-The rule explains unsafe redirect parameters and safe same-origin/allowlist patterns.
+RULE CONTENT (generated from LearnedRuleTemplate, not hand-written):
+  id: learned_open_redirect_001
+  title: "Open Redirect: Validate Redirect Targets"
+  source: OWASP Unvalidated Redirects and Forwards Cheat Sheet
+  severity: medium
+  unsafe_patterns:
+    - "Login/logout/invite route redirects directly to a next/returnUrl/redirect parameter"
+    - "Redirect target accepts absolute external URLs without validation"
+    - "Redirect validation checks string prefixes instead of parsing origin"
+  safe_patterns:
+    - "Prefer fixed server-side redirect destinations for sensitive flows"
+    - "Allow only relative same-origin paths"
+    - "Validate external redirect targets against an explicit allowlist"
+    - "Fall back to a safe default route when validation fails"
 ```
+
+### Second Self-Improvement Example: CSV Formula Injection
+
+The same loop repeated independently for CSV formula injection:
+
+1. Agent encountered a CSV export route writing untrusted customer notes directly to cells.
+2. Called `redline_finding.py` → logged `finding_ce17aa87902b` → auto-generated `learned_csv_formula_injection_001` from the OWASP CSV Injection template.
+3. Wiki grew from 11 to 12 safety rules. Future agents querying about CSV exports now receive proactive guidance about formula-cell neutralization.
+
+### Third Self-Improvement Example: SSRF
+
+1. Agent encountered a URL preview endpoint calling `httpx.get(url)` with raw user input.
+2. Logged `finding_68cdc4cb615d` with full affected code and a safe rewrite (scheme validation + host allowlist + disabled redirects).
+3. Finding was matched to existing rule `raw_input_validation_001` and includes a concrete before/after code example in the wiki.
 
 ## Architecture
 
-Redline uses a FastAPI backend, React/Vite frontend, local Markdown/JSON wiki, optional Redis Stack hot memory, and optional Cognee durable memory.
-
 ```text
-[raw_sources / UI ingest / agent turns]
-        |
-        v
-[FastAPI routes + deterministic detectors]
-        |
-        v
-[ Redis  - session memory ]   <- hot, per-conversation
-        |
-        | promote accepted rules, findings, violations, regression tests
-        v
-[ Cognee - permanent graph ]  <- durable, cross-session
-        |
-        v
-[agent context retrieval / preflight / memory recall]
-        |
-        v
-[feedback + findings -> improve wiki]
+┌─────────────────────────────────────────────────────────┐
+│  CODING AGENT (Claude, Codex, Copilot, etc.)            │
+│                                                         │
+│  1. redline_context.py "task"  → GET safety rules       │
+│  2. agent writes code                                   │
+│  3. redline_preflight.py --diff → CHECK proposed code   │
+│  4. redline_finding.py → REPORT novel risks             │
+└──────────┬──────────────────┬──────────────────┬────────┘
+           │                  │                  │
+           v                  v                  v
+┌──────────────────────────────────────────────────────────┐
+│  FastAPI Backend (backend/app/main.py)                   │
+│                                                          │
+│  /agent/context  - ranked rule retrieval + vector recall  │
+│  /preflight      - fingerprint → detectors → enrichment  │
+│  /agent/finding  - dedupe → log → auto-generate rule     │
+│  /ingest         - parse → store → mirror to memory      │
+│  /accept-rewrite - violation + regression + fingerprint  │
+│  /feedback       - score → propose improvement           │
+│  /lint           - dedupe + conflicts + stale checks     │
+│  /wiki/recent    - recently added entries for UI         │
+└──────────┬──────────────────┬──────────────────┬────────┘
+           │                  │                  │
+           v                  v                  v
+┌─────────────────┐  ┌──────────────────┐  ┌──────────────┐
+│  Local Wiki     │  │  Redis Stack     │  │  Cognee      │
+│  (file-backed)  │  │  (hot memory)    │  │  (durable)   │
+│                 │  │                  │  │              │
+│  12 safety rules│  │  RedisJSON docs  │  │  cognee.add  │
+│  13 violations  │  │  RediSearch idx  │  │  cognee.     │
+│  13 reg. tests  │  │  Vector KNN      │  │    cognify   │
+│  4 findings     │  │  Streams events  │  │  cognee.     │
+│                 │  │  Fingerprints    │  │    search    │
+│  JSON + MD      │  │  Session TTL     │  │  Graph store │
+└─────────────────┘  └──────────────────┘  └──────────────┘
 ```
 
-### Redis-as-session-memory
+### Redis-as-Session-Memory (Sponsor Memory)
 
-- What the agent writes into Redis (raw turns, intermediate observations, ...): preflight proposals/results, trace events, rule retrieval events, safety memories, fingerprints, rewrites, violations, regression tests, and recent session activity.
-- How and when content is distilled into the graph: when rules are ingested, findings are logged, feedback is recorded, or rewrites are accepted, Redline writes local wiki files and calls the Cognee-compatible durable memory adapter.
-- What stays in Redis vs. what gets promoted: Redis keeps hot session context, streams, search indexes, vectors, and repeated-risk fingerprints; Cognee/wiki receive durable rules, feedback, learned findings, accepted violations, and regression tests.
-- How distillation quality improved between baseline and improved run: the baseline open-redirect issue existed only as an agent judgment; after logging, Redline promoted it into an explicit learned rule with source, severity, unsafe patterns, and safe remediation guidance.
+- **What the agent writes into Redis:** Rule documents, vector-embedded safety memories (rules, violations, findings, regressions), preflight results, session event histories, fingerprints keyed by `risk_type:language:pattern`, and trace events streamed to `stream:redline_events`.
+- **RediSearch vector index:** `idx:safety_memories` indexes all `memory:*` JSON documents with HNSW vector similarity (128-dim, cosine distance) plus TAG fields for kind, risk_type, severity, and TEXT fields for title/content. This enables KNN recall queries like "find the 5 most similar prior safety memories for this code snippet."
+- **Redis Reflex Memory (fingerprints):** When a preflight catches unsafe code, the system generates a fingerprint (e.g., `sql_injection:python:string_interpolated_sql`) and stores it. On subsequent preflights, fingerprint lookup runs **before** detectors, providing an instant fast-path block. Fingerprints track `count`, `first_seen`, `last_seen`, and linked violation/preflight IDs.
+- **What stays in Redis vs. what gets promoted:** Redis keeps ephemeral session context (24h TTL), per-preflight results (5min TTL), vector embeddings for similarity search, and fingerprints for fast-path detection. Cognee/wiki receive durable rules, findings, violations, regression tests, and feedback that persist across sessions.
+- **Distillation improvement:** In the baseline run, the open-redirect issue existed only as a Redis trace event. After the self-improvement loop, it was promoted to a durable wiki rule with OWASP source attribution, structured unsafe/safe patterns, and a severity rating -- recalled in every future agent session.
 
-## Agents / Skills (if any)
+## Agents / Skills
 
-If you used skill packs or multi-agent roles:
+Redline integrates with coding agents through three CLI scripts that are wired into agent instructions (via `CLAUDE.md` / `AGENTS.md`):
 
 ```text
-Skill path(s):
-  scripts/redline_context.py
-  scripts/redline_preflight.py
-  scripts/redline_finding.py
-Roles:
-  - Ingestor: /ingest converts trusted source notes into wiki safety rules.
-  - Querier: /agent/context retrieves relevant rules and similar memories before coding.
-  - Linter: /lint checks duplicate, conflicting, or stale wiki/memory state.
-  - Critic: /preflight, /feedback, and /agent/finding detect issues, collect feedback, and log novel risks.
+scripts/redline_context.py "<task>"
+  → Calls POST /agent/context (or local fallback)
+  → Returns ranked safety rules + similar memories
+  → Agent uses these as security context while coding
+
+scripts/redline_preflight.py --diff
+  → Reads git diff, filters to production code
+  → Calls POST /preflight (or local fallback)
+  → Returns PASS / WARNING / REDLINE TRIGGERED + evidence + safe rewrite
+  → Agent must fix TRIGGERED results before finalizing
+
+scripts/redline_finding.py --title "..." --description "..."
+  → Calls POST /agent/finding (or local fallback)
+  → Dedupes against existing findings (similarity >= 0.74)
+  → Logs novel findings + auto-generates learned rules
+  → Wiki grows autonomously from agent discoveries
 ```
+
+The backend exposes four functional roles:
+- **Ingestor** (`/ingest`): converts trusted source notes into structured wiki safety rules.
+- **Querier** (`/agent/context`, `/memory/recall`): retrieves relevant rules and similar memories before coding.
+- **Critic** (`/preflight`, `/agent/finding`, `/feedback`): detects issues, logs novel risks, and collects feedback.
+- **Linter** (`/lint`): checks wiki health -- duplicates, severity conflicts, and stale memory.
 
 ## Reproduction
 
-Commands to reproduce your demo:
-
 ```bash
-# Terminal 1: optional sponsor memory
+# Terminal 1: sponsor memory (Redis Stack with JSON, Search, Streams)
 docker run --rm --name redline-redis-stack \
   -p 6379:6379 -p 8001:8001 \
   redis/redis-stack:latest
 
 # Terminal 2: backend
-cd /Users/victorwong/Downloads/redline/backend
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
 uvicorn app.main:app --host localhost --reload
 
 # Terminal 3: frontend
-cd /Users/victorwong/Downloads/redline/frontend
-npm install
-npm run dev
-
-# Agent guard examples, from repo root
-cd /Users/victorwong/Downloads/redline
-python3 scripts/redline_context.py "implement a SQL-backed user lookup"
-python3 scripts/redline_preflight.py \
-  --content 'query = f"SELECT * FROM users WHERE email = {email}"'
-python3 scripts/redline_finding.py \
-  --title "Open redirect risk in post-login redirect helper" \
-  --description "The route redirects to a user-controlled next URL without same-origin validation or an allowlist." \
-  --evidence "/api/login/complete reads next from the query string and redirects directly."
+cd frontend
+npm install && npm run dev
 ```
 
-Environment variables required:
+**Try the full agent loop:**
+
+```bash
+# 1. QUERY: retrieve safety context for a SQL task
+python3 scripts/redline_context.py "implement a SQL-backed user lookup"
+
+# 2. PREFLIGHT: check unsafe code
+python3 scripts/redline_preflight.py \
+  --content 'query = f"SELECT * FROM users WHERE email = {email}"'
+# → REDLINE TRIGGERED, severity: critical, safe_rewrite: "Use parameterized query"
+
+# 3. SELF-IMPROVE: report a novel finding the wiki doesn't cover
+python3 scripts/redline_finding.py \
+  --title "Open redirect risk in post-login redirect helper" \
+  --description "The route redirects to a user-controlled next URL without same-origin validation." \
+  --evidence "/api/login/complete reads next from query string and redirects directly." \
+  --category open_redirect
+# → LOGGED_NEW_FINDING, auto-generated learned_open_redirect_001
+
+# 4. QUERY AGAIN: verify the wiki learned
+python3 scripts/redline_context.py "add a post-login redirect helper"
+# → Now returns learned_open_redirect_001 in the top results
+
+# 5. LINT: check wiki health
+curl -X POST http://localhost:8000/lint -H 'Content-Type: application/json' -d '{}'
+```
+
+**Environment variables:**a
 
 ```text
-REDIS_URL=redis://localhost:6379/0
-COGNEE_ENABLED=true
-COGNEE_DATASET=redline-hackathon
-COGNEE_SESSION_PREFIX=redline
-REDLINE_REQUIRE_SPONSOR_MEMORY=true
-LLM_PROVIDER=openai
-LLM_MODEL=gpt-4o-mini
-LLM_API_KEY=<required only for Cognee-backed LLM work>
-OPENAI_API_KEY=<optional OpenAI-compatible key>
+REDIS_URL=redis://localhost:6379/0          # Redis Stack connection
+COGNEE_ENABLED=true                         # Enable Cognee durable memory
+COGNEE_DATASET=redline-hackathon            # Cognee dataset name
+COGNEE_SESSION_PREFIX=redline               # Session scoping prefix
+REDLINE_REQUIRE_SPONSOR_MEMORY=true         # Require Redis+Cognee for full demo
+LLM_PROVIDER=openai                         # Cognee LLM provider
+LLM_MODEL=gpt-4o-mini                       # Cognee LLM model
+LLM_API_KEY=<your key>                      # Required for Cognee graph operations
 ```
 
 ## Demo
 
-- Live demo link (Loom, YouTube, etc.) or local instructions: run the backend and frontend above, then open `http://localhost:5173`. Redis Insight is available at `http://localhost:8001` when Redis Stack is running.
-- 3-minute pitch outline:
+- **Live app:** Run backend + frontend, then open `http://localhost:5173`. Redis Insight at `http://localhost:8001`.
+- **3-minute pitch:**
 
-```text
-1. Problem / idea: coding agents need a living safety memory, not one-off prompts.
-2. Ingest demo: ingest or show seeded SQL/prompt/security rules in the wiki.
-3. Query demo (before improvement): run a known unsafe SQL preflight and show REDLINE TRIGGERED.
-4. Self-improve step: accept the safe rewrite or log an unknown issue such as open redirect / CSV formula injection.
-5. Query demo (after improvement): refresh Recently Added and show the new finding plus learned safety rule.
-6. What is next: add more learned-rule detectors, strengthen automatic evals, and expand Cognee graph recall.
 ```
 
 ## Links
 
-- Repo: https://github.com/VictorWong123/llm-wiki
-- Slides / writeup: project PDFs in `docs/`
-- Anything else: local app at `http://localhost:5173`, recent learned entries at `http://localhost:5173/recently-added`
+- **Repo:** https://github.com/VictorWong123/llm-wiki
+- **Docs:** project PDFs in `docs/`
+- **Local app:** `http://localhost:5173`
+- **Recently Added (learning evidence):** `http://localhost:5173/recently-added`
