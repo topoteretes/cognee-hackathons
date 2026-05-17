@@ -139,7 +139,7 @@ LLM_API_KEY=<your_key>
 ## Demo
 
 - Live demo link (Loom, YouTube, etc.) or local instructions: Local demo at <http://localhost:8502> after running commands above. Optional recording can be created from this flow.
-- 3-minute pitch outline:
+- 3-minute pitch outline: <https://gamma.app/docs/Battle-cards-go-stale-Deals-dont-wait-tt63by8panm4mpq>
 
 ```text
 1. Problem / idea
@@ -159,13 +159,4 @@ LLM_API_KEY=<your_key>
 ## Links
 
 - Repo: <https://github.com/kklike32/cognee-redis-hackathon>
-- Slides / writeup: sherlock_pitch.pptx (local file at /Users/keenan/Documents/cognee-redis-hackathon/sherlock_pitch.pptx)
-- Anything else: Demo runbook at /Users/keenan/Documents/cognee-redis-hackathon/DEMO_SHOWCASE.md
-
-## Final Submit Checklist
-
-1. Push latest code to main branch in the repo link above.
-2. Upload sherlock_pitch.pptx to Google Slides or Drive and replace the Slides link with a shareable URL.
-3. (Optional but recommended) Record a 40-90 second Loom walkthrough from the Streamlit flow and paste link in Demo.
-4. Copy this filled markdown into the official hackathon submission form.
-5. Keep one terminal open with Streamlit running for finalist live demo.
+- Slides / writeup: [https://gamma.app/docs/Battle-cards-go-stale-Deals-dont-wait-tt63by8panm4mpq](https://gamma.app/docs/Battle-cards-go-stale-Deals-dont-wait-tt63by8panm4mpq)
