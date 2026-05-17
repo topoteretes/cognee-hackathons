@@ -44,7 +44,9 @@ Open local app URL: [http://localhost:8502](http://localhost:8502)
 ## Submission Assets
 
 - Filled submission template: templates/SUBMISSION.md
+- GitHub repo: https://github.com/kklike32/cognee-redis-hackathon
 - Demo runbook: /Users/keenan/Documents/cognee-redis-hackathon/DEMO_SHOWCASE.md
+- Demo video: /Users/keenan/Documents/cognee-redis-hackathon/cognee_demo_video.mov
 - Pitch deck generator: /Users/keenan/Documents/cognee-redis-hackathon/scripts/create_pitch.py
 - Pitch deck file: /Users/keenan/Documents/cognee-redis-hackathon/sherlock_pitch.pptx
 

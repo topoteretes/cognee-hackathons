@@ -139,6 +139,7 @@ LLM_API_KEY=<your_key>
 ## Demo
 
 - Live demo link (Loom, YouTube, etc.) or local instructions: Local demo at <http://localhost:8502> after running commands above. Optional recording can be created from this flow.
+- Demo video file: /Users/keenan/Documents/cognee-redis-hackathon/cognee_demo_video.mov
 - 3-minute pitch outline: <https://gamma.app/docs/Battle-cards-go-stale-Deals-dont-wait-tt63by8panm4mpq>
 
 ```text
@@ -160,3 +161,4 @@ LLM_API_KEY=<your_key>
 
 - Repo: <https://github.com/kklike32/cognee-redis-hackathon>
 - Slides / writeup: [https://gamma.app/docs/Battle-cards-go-stale-Deals-dont-wait-tt63by8panm4mpq](https://gamma.app/docs/Battle-cards-go-stale-Deals-dont-wait-tt63by8panm4mpq)
+- Demo video: /Users/keenan/Documents/cognee-redis-hackathon/cognee_demo_video.mov
