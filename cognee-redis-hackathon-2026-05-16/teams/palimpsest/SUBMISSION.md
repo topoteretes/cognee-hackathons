@@ -51,7 +51,7 @@ flowchart TB
         direction LR
         Stream1[("Stream<br/>firehose:items")]:::redis
         Stream2[("Stream<br/>wiki:evolution")]:::redis
-        Json[("RedisJSON<br/>wiki:concept:&lt;slug&gt;")]:::redis
+        Json[("RedisJSON<br/>wiki:concept:{slug}")]:::redis
         PubSub[("Pub/Sub<br/>wiki:events")]:::redis
         Cache[("RedisVL SemanticCache<br/>wiki:answer-cache:*")]:::redis
         Session[("cognee session_id=<br/>working memory")]:::redis
@@ -84,7 +84,7 @@ flowchart TB
     Query <-->|semantic cache| Cache
     User -->|wiki improve| SkillLoop["skill_loop.py<br/>propose -> apply"]
     SkillLoop --> Skill
-    Skill -.->|rewrite my_skills/&lt;skill&gt;/SKILL.md| Wiki
+    Skill -.->|rewrite my_skills/{skill}/SKILL.md| Wiki
 
     User -->|wiki lint| Lint["lint.py"]
     Lint --> Reports
@@ -153,11 +153,11 @@ sequenceDiagram
     participant G as Gemini 3<br/>synthesis
     participant SL as skill_loop.py
     participant S as Cognee<br/>SkillRunEntry
-    participant FS as my_skills/&lt;skill&gt;/<br/>SKILL.md
+    participant FS as my_skills/{skill}/<br/>SKILL.md
 
     U->>Q: wiki ask "..."
     Q->>SC: lookup(question)
-    alt cache hit (< 15min, ~cosine threshold)
+    alt cache hit (fresh, ~cosine threshold)
         SC-->>U: cached answer
     else cache miss
         Q->>C: cognee.search(GRAPH_COMPLETION)
@@ -170,10 +170,10 @@ sequenceDiagram
 
     U->>SL: wiki improve --record skill --score 0.3
     SL->>S: SkillRunEntry(task, score, feedback)
-    alt score < threshold
+    alt score below threshold
         SL->>S: improve_skill(apply=False)
         S-->>SL: proposal_id + diff
-        U->>SL: wiki improve --apply <proposal_id>
+        U->>SL: wiki improve --apply {proposal_id}
         SL->>FS: write new SKILL.md
     end
 ```
@@ -262,7 +262,7 @@ flowchart LR
         direction TB
         S1[("firehose:items<br/>Stream")]:::redis
         S2[("wiki:evolution<br/>Stream<br/>every page version")]:::redis
-        J[("wiki:concept:&lt;slug&gt;<br/>RedisJSON versioned")]:::redis
+        J[("wiki:concept:{slug}<br/>RedisJSON versioned")]:::redis
         V[("wiki:verdict:*<br/>10-min TTL")]:::redis
         A[("wiki:answer-cache:*<br/>15-min TTL")]:::redis
         SS[("cognee session_id=<br/>working memory")]:::redis
