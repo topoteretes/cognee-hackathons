@@ -44,58 +44,63 @@ from 0/3 -> 3/3 after the new evidence is ingested, with citations.
 
 ```mermaid
 flowchart TB
-    User([agent / user]):::user
-    Firehose[/"synthetic firehose<br/>{title, body, source, url}"/]:::ext
+    User(["agent / user"]):::user
+    Firehose["synthetic firehose<br>title, body, source, url"]:::ext
 
-    subgraph Redis["Redis Stack — session memory (fast, ephemeral)"]
+    subgraph RedisBox ["Redis Stack: session memory"]
         direction LR
-        Stream1[("Stream<br/>firehose:items")]:::redis
-        Stream2[("Stream<br/>wiki:evolution")]:::redis
-        Json[("RedisJSON<br/>wiki:concept:{slug}")]:::redis
-        PubSub[("Pub/Sub<br/>wiki:events")]:::redis
-        Cache[("RedisVL SemanticCache<br/>wiki:answer-cache:*")]:::redis
-        Session[("cognee session_id=<br/>working memory")]:::redis
+        Stream1["Stream<br>firehose:items"]:::redis
+        Stream2["Stream<br>wiki:evolution"]:::redis
+        Json["RedisJSON<br>wiki:concept slug"]:::redis
+        PubSub["Pub/Sub<br>wiki:events"]:::redis
+        Cache["RedisVL SemanticCache<br>wiki:answer-cache"]:::redis
+        Session["cognee session_id<br>working memory"]:::redis
     end
 
-    subgraph Cognee["Cognee — permanent memory (structured, durable)"]
+    subgraph CogneeBox ["Cognee: permanent memory"]
         direction LR
-        Kuzu[("Kuzu graph<br/>entities + SUPERSEDES")]:::cognee
-        Lance[("LanceDB<br/>embeddings")]:::cognee
-        Skill[("SkillRunEntry +<br/>improve_skill")]:::cognee
+        Kuzu["Kuzu graph<br>entities + SUPERSEDES"]:::cognee
+        Lance["LanceDB<br>embeddings"]:::cognee
+        Skill["SkillRunEntry<br>improve_skill"]:::cognee
     end
 
-    Wiki[/"wiki/concepts/*.md<br/>(Obsidian-friendly)"/]:::fs
-    Log[/"wiki/log.md<br/>(audit trail)"/]:::fs
-    Reports[/"wiki/reports/*.md<br/>(lint reports)"/]:::fs
+    Wiki["wiki/concepts/*.md<br>Obsidian-friendly"]:::fs
+    Log["wiki/log.md<br>audit trail"]:::fs
+    Reports["wiki/reports/*.md<br>lint reports"]:::fs
+
+    Ingest["ingest worker<br>src/palimpsest/ingest.py"]
+    Query["query.py<br>GRAPH_COMPLETION + Gemini"]
+    SkillLoop["skill_loop.py<br>propose then apply"]
+    Lint["lint.py"]
 
     Firehose -->|XADD| Stream1
-    Stream1 --> Ingest["ingest worker<br/>src/palimpsest/ingest.py"]
+    Stream1 --> Ingest
     Ingest -->|cognee.add + cognify| Kuzu
     Ingest -->|cognee.add + cognify| Lance
-    Ingest -->|contradiction check<br/>Gemini, Redis-cached| Json
+    Ingest -->|contradiction check| Json
     Ingest --> Wiki
     Ingest -->|page rewrite + reason| Stream2
     Ingest -->|live event| PubSub
     Ingest -->|SUPERSEDES edge| Kuzu
 
-    User -->|wiki ask| Query["query.py<br/>GRAPH_COMPLETION + Gemini"]
+    User -->|wiki ask| Query
     Query --> Kuzu
     Query --> Lance
     Query <-->|semantic cache| Cache
-    User -->|wiki improve| SkillLoop["skill_loop.py<br/>propose -> apply"]
+    User -->|wiki improve| SkillLoop
     SkillLoop --> Skill
-    Skill -.->|rewrite my_skills/{skill}/SKILL.md| Wiki
+    Skill -.->|rewrite SKILL.md| Wiki
 
-    User -->|wiki lint| Lint["lint.py"]
+    User -->|wiki lint| Lint
     Lint --> Reports
 
-    Session -.-> Cognee
+    Session -.-> CogneeBox
 
-    classDef user fill:#ffe9a8,stroke:#a37b00,color:#222;
-    classDef ext fill:#e6f0ff,stroke:#3366bb,color:#222;
-    classDef redis fill:#ffd7d7,stroke:#cc0000,color:#222;
-    classDef cognee fill:#d7e8ff,stroke:#1e4a8a,color:#222;
-    classDef fs fill:#e9f5d7,stroke:#3a6b1c,color:#222;
+    classDef user fill:#ffe9a8,stroke:#a37b00,color:#222
+    classDef ext fill:#e6f0ff,stroke:#3366bb,color:#222
+    classDef redis fill:#ffd7d7,stroke:#cc0000,color:#222
+    classDef cognee fill:#d7e8ff,stroke:#1e4a8a,color:#222
+    classDef fs fill:#e9f5d7,stroke:#3a6b1c,color:#222
 ```
 
 ---
