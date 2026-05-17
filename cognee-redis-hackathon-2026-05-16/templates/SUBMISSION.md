@@ -228,11 +228,15 @@ PORT
 
 ## Links
 
-* Repo: Add GitHub repository URL after push.
-* Slides / writeup: This `SUBMISSION.md` plus `docs/demo-script.md`.
+Frontend is running here: http://127.0.0.1:3000/dashboard
+Backend health is here: http://127.0.0.1:4000/api/health
+
+
+* Repo: https://github.com/shahnikhilb/Hackathon-Cognee-Redis-Sales-GTM-AI-Agent 
 * Anything else:
   * Demo script: `docs/demo-script.md`
   * Seed data: `data/moksha_labs_sales_knowledge_base_v1.md`
   * Main web app: `apps/web`
   * Main API: `apps/api`
   * Direct Cognee reference service: `app/main.py`
+  
