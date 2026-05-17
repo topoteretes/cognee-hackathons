@@ -75,6 +75,17 @@ The single remaining miss is a claim whose corruption sits in a denser
 region of the seed — converges with one more improvement round in the
 long-running loop.
 
+### Side-by-side: one claim, before vs after
+
+**Claim**: *"Cognee exposes four operations: remember, recall, forget, and improve."* (truth: TRUE)
+
+| | Before (round 0) | After (round 1) |
+|---|---|---|
+| Wiki chunk seen by Defender | "Cognee exposes four operations: `store`, `query`, `delete`, and `improve`." | *(same chunk)* **+** "Correction (authoritative): the statement 'Cognee exposes four operations: remember, recall, forget, and improve.' is TRUE. The wiki had outdated or incorrect information; this entry supersedes any conflicting prior wiki content." |
+| Defender verdict | **FALSE** (wiki says store/query/delete) | **TRUE** (Correction surfaces first; judge prompt prefers entries starting with "Correction:") |
+| Oracle verdict | TRUE | TRUE |
+| Outcome | ✗ miss → ZADD vulnerabilities 0.6 → cognee.remember(correction) | ✓ correct |
+
 ```text
 Recorded feedback (Redis ZSET vulnerabilities, top entries):
   0.60  Cognee exposes four operations: remember, recall, forget, improve.
