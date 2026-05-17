@@ -40,7 +40,7 @@ Moksha GTM Copilot is a self-improving sales-memory wiki for Moksha Labs go-to-m
 
 ### Lint
 
-* What "linting" means in this wiki: Keep the sales wiki trustworthy by removing duplicate workflow queue entries, limiting stale activity logs, resolving completed actions, surfacing source provenance, and detecting thin or irrelevant retrieval through debug search scores.
+*  Keep the sales wiki trustworthy by removing duplicate workflow queue entries, limiting stale activity logs, resolving completed actions, surfacing source provenance, and detecting thin or irrelevant retrieval through debug search scores.
 * How it runs: Queue dedupe happens on write; Redis activity logs are trimmed continuously; events can be resolved on demand; retrieval quality can be checked through `/api/cognee/debug-search` before demo or after ingestion.
 * Code entry point:
   * `apps/api/src/services/redisService.ts` prevents duplicate queue IDs, stores `next_action:{lead_id}`, and resolves events.
@@ -239,4 +239,16 @@ Backend health is here: http://127.0.0.1:4000/api/health
   * Main web app: `apps/web`
   * Main API: `apps/api`
   * Direct Cognee reference service: `app/main.py`
-  
+
+
+Screen shots
+
+  <img width="1909" height="971" alt="image" src="https://github.com/user-attachments/assets/dadc9fb7-2a17-4502-adfa-11fa207afd20" />
+
+  <img width="1919" height="934" alt="image" src="https://github.com/user-attachments/assets/c088a659-4bf0-4bc8-9f06-07d1567867e8" />
+
+  <img width="1879" height="883" alt="image" src="https://github.com/user-attachments/assets/f3c07773-245f-42c8-9323-fff19a422011" />
+
+<img width="1872" height="945" alt="image" src="https://github.com/user-attachments/assets/518c24f7-b25e-42b0-bf19-458c56930917" />
+
+
