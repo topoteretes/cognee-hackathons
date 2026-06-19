@@ -37,28 +37,41 @@ A self-cleaning Company Brain on Cognee Cloud for an AI consultancy. It ingests 
 
 ## Self-Improvement Evidence
 
-Concrete before→after, driven by `demo.py` over both clients.
+Verified live against Cognee Cloud (real `demo.py`/recall output, both clients). The standout case is a **compliance-critical correction**: before lint the brain recommends the GDPR-violating storage option; after lint it gives the compliant one — and writes a receipt explaining why.
 
-### Baseline Run
+### Baseline Run (before lint)
 
-- Query / task: "Which LLM does RFI Copilot use today?" and "Where can we store BauStein raw helmet-cam video?"
-- Result: stale/contradicted answers (old GPT-4o model; US-east raw video suggested by a low-trust Slack message).
-- Score (own metric): headline questions graded WRONG against the answer-key before lint.
+- Query: "Where can we store BauStein raw helmet-cam video?"
+- Result (real recall): **"Store the BauStein raw helmet‑cam video in the US‑east storage bucket."** → **WRONG**. A newer but low-trust Slack message (`bau-03`, "pipe raw clips to US-east so the demo loads faster") wins on recency over the signed DPA.
+- Score: graded WRONG against the answer-key (`expect EU-Frankfurt`, `must_not US-east`).
 - Recorded feedback:
 
 ```text
-error_type: contradiction / staleness / hard-fact-violation
-error_message: newer or higher-trust fact not yet winning; low-trust source contradicts a signed contract
-feedback: route deterministically (trust+recency, hard-fact HOLD); escalate grey-band to judge; PARK if unsure
+error_type: hard-fact-violation (contradiction)
+error_message: low-trust Slack source recommends US-east raw video, contradicting the signed DPA (EU-Frankfurt, anonymized)
+feedback: HOLD the hard policy; reassert it in memory and explicitly deprecate the US-east option; never overridden by a lower-trust source
 success_score: 0 (pre-lint)
 ```
 
-### Improved Run
+(Two other headline questions — RFI Copilot's LLM and Scribe Assist's LLM+HIPAA — the brain already answers correctly before lint; cognee's recall synthesizes the current value from the facts. Those stay correct after lint. We report this honestly rather than claim everything flips.)
 
-- Query / task: same questions after `run_lint`.
-- Result: answers flip to RIGHT — "Claude Sonnet 4.5" for RFI Copilot; "EU-Frankfurt, anonymized" for video residency (signed DPA upheld over the Slack shortcut).
-- Score: headline questions graded FIXED; `clashes N→0` with path stats (free / judge / parked).
-- Every resolution recorded as an append-only receipt — no silent forgetting.
+### Improved Run (after lint)
+
+- Query: same question after `run_lint`.
+- Result (real recall): **"EU‑Frankfurt storage bucket"** → **FIXED**. The signed DPA is upheld; the US-east shortcut is no longer recommended.
+- Mechanism (the actual fix): `forget()` is unreliable on the cloud (DELETE returns 500), so the imposer does **not** rely on deletion. On a HOLD/OVERRIDE/RETIRE it writes the *resolved truth* back to memory — an authoritative corrective that reasserts the winner and explicitly deprecates the loser — then re-`cognify`s so recall reflects it. The brain now both *knows* (receipt) and *says* (recall) the right answer.
+- Stats (real): `clashes 9→0` · `resolved_free: 9` · `needed_judge: 0` · `parked: 0` · `health: 1.0` · **9 receipts** written.
+- Sample receipts (`receipts.md`):
+
+```text
+2026-06-19 | HOLD     | baustein | kept "EU-Frankfurt anonymized" (contract) | dropped/flagged "US-east raw" (slack#proj-baustein) | hard policy not overridden by lower-trust source
+2026-06-19 | OVERRIDE | baustein | kept "Claude Sonnet 4.5" (slack#proj-baustein) | dropped/flagged "GPT-4o" (meeting-notes) | newer and/or more-trusted value wins
+2026-06-19 | RETIRE   | baustein | retired "Munich Tower PoC Q2 2024" (meeting-notes, 2024-04-10) | age 800d exceeds 2x refresh horizon
+```
+
+Every resolution is an append-only receipt — **nothing is silently forgotten**.
+
+> Reproducibility note: because the cloud DELETE is broken, lint correctives accumulate across re-runs on the same dataset — so a *second* run may already show the corrected answer before lint. To reproduce the clean before→WRONG state, ingest into a fresh dataset name.
 
 ## Best use of Cognee Cloud
 

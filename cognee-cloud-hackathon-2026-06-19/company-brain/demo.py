@@ -1,4 +1,4 @@
-import asyncio, json
+import asyncio, json, unicodedata
 from pathlib import Path
 from brain import config
 from brain.judge import make_judge
@@ -11,13 +11,20 @@ MD, JL = Path("receipts.md"), Path("receipts.jsonl")
 def load_questions():
     return [json.loads(l) for l in Path("eval/questions.jsonl").read_text().splitlines() if l.strip()]
 
+def _norm(s):
+    # the cloud LLM emits non-breaking hyphens/spaces (U+2011, U+00A0); fold them
+    # so substring grading is about meaning, not invisible unicode quirks.
+    s = s.replace("‑", "-").replace("‐", "-").replace(" ", " ")
+    return unicodedata.normalize("NFKC", s).casefold()
+
 async def ask(client, q):
     res = await client.recall(q["question"], datasets=[q["client"]])
     return (res[0]["text"] if res else "")
 
 def grade(ans, q):
-    ok = all(s.lower() in ans.lower() for s in q["expect_contains"])
-    bad = any(s.lower() in ans.lower() for s in q.get("must_not_contain", []))
+    a = _norm(ans)
+    ok = all(_norm(s) in a for s in q["expect_contains"])
+    bad = any(_norm(s) in a for s in q.get("must_not_contain", []))
     return ok and not bad
 
 async def main():
