@@ -67,14 +67,40 @@ apply) → apply explicitly* — maps 1:1 onto the native Cognee 1.2 API:
 The brain literally **learns its own operating rules from its mistakes**, sourcing them from the
 schema rather than inventing them.
 
-## Before / after evidence
-See `brain/evidence/before-after.md` (generated). Same questions, no question text changed:
+## Self-Improvement Evidence
 
-<!-- EVIDENCE -->
-_(populated by `python brain/evidence.py` after a run)_
+| Run | Skill | Avg score | Cited | Surfaced conflict | Stated currency |
+| --- | --- | --- | --- | --- | --- |
+| **Before** | baseline v1 | **1.3 / 10** | 0/7 | 0/7 | 0/7 |
+| **After** | wiki-maintainer | **10.0 / 10** | 7/7 | 7/7 | 7/7 |
 
-The "after" answers gain source citations, surface the planted contradictions, and state which
-value is current — exactly the behaviors the baseline skill omitted.
+### Baseline Run
+
+- **Query:** What's the current premium-upgrade timing, and was it ever changed?
+- **Result:** "The premium upgrade prompt appears on Day 3 after first use."
+- **Score: 1/10** — confident, no citation, conflict hidden, wrong value served as live
+- **Recorded feedback:**
+  ```
+  error_type: stale_value_served_as_live
+  error_message: Day 3 was reverted to Day 7 on 2026-04-09; baseline picked the superseded value
+  feedback: must cite source, must state current-vs-superseded, must flag stale references
+  success_score: 1
+  ```
+
+### Improved Run
+
+- **Query:** What's the current premium-upgrade timing, and was it ever changed?
+- **Result:** "**Current: Day 7 after first use** (Decision Log, 2026-04-09 — Product review
+  reverted it, superseding the 2026-02-14 move to Day 3). Originally Day 7 (PRD §Monetisation,
+  2026-01-22) → Day 3 (Decision Log 2026-02-14) → **back to Day 7** (Decision Log 2026-04-09).
+  ⚠️ Stale references still cite Day 3: **Roadmap 2026** and **Design Spec Screen 5**."
+- **Score: 10/10** — cited, surfaced the supersession chain, flagged stale references
+- **What changed:** The brain scored its own failure (1/10), diagnosed that it violated
+  `CLAUDE.md §3.1` (no provenance) and `§3.6` (no current-vs-superseded). It proposed a skill
+  rewrite adopting those exact policies — proposed first, applied explicitly. `cognee.improve()`
+  distilled the session into the permanent graph.
+
+Full evidence (7 questions, all 11 planted issues): `brain/evidence/before-after.md` + `brain/evidence/lint-report.md`
 
 ## Lint (the alignment money-shot)
 `brain/evidence/lint-report.md` catches all 11 planted issues: 6 live contradictions, 2
