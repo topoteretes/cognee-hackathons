@@ -382,7 +382,7 @@ have several skills (an ingestor, an answerer, a linter, a critic).
 
 ```python
 import asyncio
-from uuid import UUID
+import os
 
 import cognee
 from cognee import SearchType
@@ -395,41 +395,44 @@ from cognee.modules.pipelines.layers.resolve_authorized_user_datasets import (
 
 DATASET = "company-brain"
 SESSION = "brain-session-1"
+SKILLS_DIR = "./my_skills"  # run this from inside the event folder
 
 
-async def main():
-    # Optional: connect to Cognee Cloud (boosts your reward). Omit to run locally.
-    await cognee.serve(url="https://your-instance.cognee.ai", api_key="ck_...")
-
+async def build_locally():
+    """Ingest skills, run the agent, score it, then propose + apply an improvement."""
     # Fresh slate — drop these two prune calls if you want to keep prior runs.
     await cognee.prune.prune_data()
     await cognee.prune.prune_system(metadata=True)
     await setup()
 
-    # 1. Ingest skills into the graph.
+    # 1. Ingest skills into the graph, then read the skill names back off the result.
     remembered = await cognee.remember(
-        "./my_skills",
+        SKILLS_DIR,
         dataset_name=DATASET,
         content_type="skills",
     )
-    dataset_id = UUID(remembered.dataset_id)
-    user, datasets = await resolve_authorized_user_datasets(dataset_id)
+    skill_names = [item["name"] for item in remembered.items if item["kind"] == "skill"]
+    if not skill_names:
+        raise RuntimeError("No skills were ingested.")
+
+    user, datasets = await resolve_authorized_user_datasets(DATASET, None)
     dataset = datasets[0]
 
-    # 2. Run the agent against the skills. session_id keeps working memory in
-    #    the Cloud session tier. Ask the agent to return a JSON score.
+    # 2. Run the agent against the skills. session_id keeps working memory in the
+    #    session tier. Ask the agent to return a JSON score.
     answer = await cognee.search(
         "Answer: how is retention calculated? Return JSON with a score 0..1.",
         query_type=SearchType.AGENTIC_COMPLETION,
-        datasets=DATASET,
-        skills=["qa-answerer"],
+        datasets=[DATASET],
+        skills=skill_names,
         max_iter=6,
         session_id=SESSION,
     )
+    print("answer:", answer)
 
     # 3. Score the run. In real life: parse `answer`, run an eval, etc.
     score = 0.3
-    skill_to_improve = "qa-answerer"
+    skill_to_improve = skill_names[0]
 
     # 4. Record feedback. apply=False -> propose a rewrite, don't change the
     #    skill yet. score_threshold sets when a proposal is generated.
@@ -450,12 +453,19 @@ async def main():
         },
     )
 
-    # 5. Apply the proposal explicitly.
+    # 5. Apply the proposal explicitly (skip gracefully if none was generated).
     proposal_id = next(
-        item["proposal_id"]
-        for item in proposal_result.items
-        if item.get("kind") == "skill_improvement_proposal"
+        (
+            item["proposal_id"]
+            for item in proposal_result.items
+            if item.get("kind") == "skill_improvement_proposal"
+        ),
+        None,
     )
+    if proposal_id is None:
+        print("No proposal generated — nothing to apply.")
+        return
+
     await improve_skill(
         skill_to_improve,
         dataset=dataset,
@@ -465,15 +475,37 @@ async def main():
     )
 
 
+async def push_to_cloud():
+    """Optional, rewarded: push your locally-built brain up to Cognee Cloud.
+
+    Credentials come from the environment — never hardcode your API key.
+    Both are handed out at kickoff:
+        export COGNEE_CLOUD_URL="https://your-instance.cognee.ai"
+        export COGNEE_API_KEY="ck_..."
+    """
+    await cognee.serve(
+        url=os.environ["COGNEE_CLOUD_URL"],
+        api_key=os.environ["COGNEE_API_KEY"],
+    )
+    print("pushed:", await cognee.push(DATASET))
+
+
+async def main():
+    await build_locally()
+    # Uncomment once COGNEE_CLOUD_URL / COGNEE_API_KEY are set to earn the bonus:
+    # await push_to_cloud()
+
+
 asyncio.run(main())
 ```
 
 What the knobs do:
 
-- **`session_id`** — keeps working memory for this run in the Cloud session
-  tier. Different sessions stay isolated; distillation into the permanent
-  graph happens when you call `cognee.remember(...)` without a `session_id`
-  (or via the background sync).
+- **`session_id`** — keeps working memory for this run in the session tier
+  (inside your Cloud instance when connected, local otherwise). Different
+  sessions stay isolated; distillation into the permanent graph happens when
+  you call `cognee.remember(...)` without a `session_id` (or via the background
+  sync).
 - **`max_iter`** — caps how many agent reasoning steps run before returning.
 - **`score_threshold`** (in `skill_improvement`) — only generate a proposal
   when the run score falls *below* this value. Raise it to be aggressive
