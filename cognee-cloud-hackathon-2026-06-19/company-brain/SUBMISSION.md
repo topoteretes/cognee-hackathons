@@ -3,7 +3,7 @@
 ## Team
 
 - Team name: Helix Brain
-- Participants: Nidhir Bhavsar (@Nid989)
+- Participants: Nidhir Bhavsar & Saswat Dash
 - Company Brain / project name: **Company Brain — self-cleaning memory that never silently forgets**
 
 ## Company Brain Overview
