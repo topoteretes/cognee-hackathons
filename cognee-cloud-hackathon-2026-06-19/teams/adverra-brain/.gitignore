@@ -1,0 +1,9 @@
+.venv/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.cognee_system/
+.data_storage/
+cognee/.cognee_system/
