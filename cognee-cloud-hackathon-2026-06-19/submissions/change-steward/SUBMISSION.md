@@ -50,13 +50,15 @@ The distillation rule is simple: raw conversation stays in session memory; reusa
 - INC-231 makes token refresh a required regression check.
 - design-system-2026 semantic tokens supersede direct color tokens.
 
+In this demo, the promotion step demonstrates the durable write path. The improved answer quality still comes from the improved `qa-answerer` skill; the newly promoted graph item is not assumed to automatically change the intentionally weak baseline on the next run.
+
 ## Self-Improvement Loop
 
 The demo uses Cognee's skill feedback path:
 
 1. Ingest the company corpus and baseline skill.
 2. Ask the hero query with `SearchType.AGENTIC_COMPLETION`.
-3. Score the baseline answer as failed: `success_score=0.35`.
+3. Score the baseline answer with the live checklist score and store that score on the `SkillRunEntry`.
 4. Store a `SkillRunEntry` with critic feedback:
    - prefer ADR-014 over ADR-009
    - use `admin-app`, not `dashboard-app`
@@ -69,6 +71,7 @@ The demo uses Cognee's skill feedback path:
 5. Apply the skill improvement proposal metadata in Cognee.
 6. Because Cognee Cloud skill body updates are not yet reliably wired, materialize the improved skill locally, re-ingest it to Cloud, and use the returned canonical skill name.
 7. Run lint to detect stale/conflicting company knowledge.
+8. Promote the resolved lint lesson to the permanent graph with a `remember(...)` call that has no `session_id`.
 
 The live demo runs the `qa-answerer` skill because that path is rehearsed and reliable. The repository also includes two locked/narrative skills in the localhost UI:
 
@@ -101,13 +104,13 @@ Final readiness output:
 ```text
 Ready: True
 Dataset: change-steward-company-brain-v2
-Baseline skill: cognee-skills-at7nbkjo
-Final skill: cognee-skills-e31vczfj
+Baseline skill: cognee-skills-ggxu7mal
+Final skill: cognee-skills-3bmln8dt
 Final score: 1.0
-Used local guardrail: False
+Used local guardrail: True
 ```
 
-The first answer scored poorly and was overridden to the demo baseline score of `0.35`. In the verified run, after two feedback/improvement passes, the final Cognee answer scored `1.0` and included every required correction:
+The first answer scored poorly according to the live checklist scorer. The promoted long-term lesson does not currently make the intentionally weak baseline answer improve by itself; the correction is enforced through the improved `qa-answerer` skill. Because Cognee Cloud skill body updates are not reliably wired yet, some runs return the corrected answer directly from the re-ingested improved skill and some runs use the transparent local guardrail after Cloud serves a stale skill body. In the latest promotion verification run, the final answer scored `1.0` and included every required correction:
 
 - Add the screen in `admin-app`, not `dashboard-app`.
 - Use AuthKit v3; `AuthProviderV1` is deprecated per ADR-014.
@@ -139,6 +142,25 @@ The lint pass detects stale company knowledge and produces an actionable resolut
 }
 ```
 
+After lint passes, the demo promotes this reusable lesson into long-term memory:
+
+```text
+ADR-014 is canonical for new admin screens. AuthKit v3 is mandatory,
+AuthProviderV1 is deprecated, and stale admin-app README guidance that
+references AuthProviderV1 should not be followed.
+```
+
+That final `remember(...)` call intentionally omits `session_id`, so the resolved rule goes to the durable graph rather than the run scratchpad.
+
+The promoted graph item is evidence of long-term memory persistence, not the mechanism that forces the next baseline answer to improve. The demo keeps those concerns separate: skill improvement changes answer behavior; lint promotion records the reusable rule durably.
+
+Latest promotion verification returned a completed Cognee Cloud write:
+
+```text
+Promoted lesson to permanent graph.
+Promotion result: status=completed, dataset=change-steward-company-brain-v2
+```
+
 ## Why It Matters
 
 Change Steward shows the Company Brain pattern as a real workflow, not just retrieval. It starts with stale, conflicting company knowledge, produces an incomplete change plan against the review checklist, receives expert feedback, improves the skill that answers future questions, and then catches the stale source with lint.
@@ -154,6 +176,7 @@ The before/after is the product: the brain learns the review habit, not only the
 5. Apply the proposal metadata, materialize the improved skill locally, and re-ingest it to Cognee Cloud.
 6. Run the query again and show the seven corrected recommendations.
 7. Run lint and show the stale `admin-app` README vs ADR-014 conflict.
+8. Show the promotion step that remembers the resolved ADR-014 rule as long-term memory.
 
 ## Files To Review
 
