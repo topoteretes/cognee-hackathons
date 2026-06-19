@@ -8,7 +8,7 @@
 
 ## Company Brain Overview
 
-**Easa** is a personal business assistant that answers your phone. **Easa-Cognee** gives it a self-improving brain on Cognee, with a twist: Easa has **two sides**, and the human-in-the-loop feedback step is itself a phone call. Customers reach Easa as a receptionist; it answers from the brain and every call is scored, with gaps it couldn't answer logged. The owner calls a second line, asks "what's happening?", hears where Easa struggled, and teaches a fact or approves a behaviour change **by voice** — so the next customer call is better. You can literally *hear* the agent improve itself.
+**Easa** is a personal business assistant that answers your phone. **Easa-Cognee** gives it a self-improving brain on Cognee, with a twist: Easa has **two sides**, and the human-in-the-loop feedback step is itself a phone call. Customers call the owner's mobile **+4915226002320** and reach Easa as a receptionist; it answers from the brain and every call is scored, with gaps it couldn't answer logged. The owner calls **+4989309072485**, asks "what's happening?", hears where Easa struggled, and teaches a fact or approves a behaviour change **by voice** — so the next customer call is better. You can literally *hear* the agent improve itself.
 
 - Domain or data sources: an independent consultant's business knowledge (synthetic seed: services, hours, booking) + live call transcripts.
 - Primary use case: a receptionist that answers callers from a knowledge graph and gets smarter from owner feedback.
@@ -134,7 +134,7 @@ EASA_API_KEY            # shared-secret header for the service
 
 ## Demo
 
-- Live demo: two phone numbers, on stage.
+- Live demo: on stage. Customers call **+4915226002320**; owner line **+4989309072485**.
 - 3-minute pitch outline:
 
 ```text
