@@ -1,0 +1,3 @@
+cognee==1.2.0.dev1
+slack-bolt>=1.18
+python-dotenv>=1.0
