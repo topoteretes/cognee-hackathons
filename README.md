@@ -15,6 +15,7 @@ that learn, remember, and improve over time.
 | Date | Hackathon | Partner | Folder |
 |------|-----------|---------|--------|
 | 2026-05-16 | AI-Memory Hackathon: Building your own Agent LLM Wiki | Redis | [`cognee-redis-hackathon-2026-05-16`](./cognee-redis-hackathon-2026-05-16) |
+| 2026-06-19 | Cognee Cloud Hackathon: Build Your Company Brain | — | [`cognee-cloud-hackathon-2026-06-19`](./cognee-cloud-hackathon-2026-06-19) |
 
 ## Repository Layout
 
@@ -33,7 +34,7 @@ Each hackathon folder follows the same structure:
 
 1. Pick the hackathon folder for the event you are joining.
 2. Read its `README.md` for setup, schedule, and judging criteria.
-3. Follow the quickstart to get Cognee and the partner tools running locally.
+3. Follow the quickstart to get Cognee (and any partner tools) running.
 4. Build, demo, and submit using the template in `templates/`.
 
 ## Links
