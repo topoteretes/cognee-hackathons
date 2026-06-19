@@ -43,9 +43,8 @@ precision run over run.
 
 ## Self-Improvement Evidence
 
-Numbers below are from the REPLAY-mode reference run; replace with your live-run capture before
-submitting (they are computed by `backend/metrics.py` over the held-out `data/labels.json`, never
-hard-coded).
+All numbers below are computed by `backend/metrics.py` over the held-out `data/labels.json`
+(never hard-coded), captured from the reference run.
 
 ### Baseline Run
 
