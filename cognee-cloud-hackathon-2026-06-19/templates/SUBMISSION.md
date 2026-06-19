@@ -94,10 +94,12 @@ brain uses that split.
 [ feedback -> improve ]
 ```
 
-### Cognee Cloud
+### Cognee Cloud (optional, rewarded)
 
-Your Company Brain MUST run on a Cognee Cloud instance (`cognee.serve(...)`) to
-qualify. Both tiers live inside that managed instance.
+Did you connect your Company Brain to Cognee Cloud (`cognee.serve(...)` or
+`cognee.push(...)`)? It's optional, but it counts toward the **"Best use of
+Cognee Cloud"** bonus. If you did, both tiers live inside that managed instance
+— describe how you used it below. If you stayed local, leave this section blank.
 
 - What the team writes to session memory (`session_id=...`) — raw turns,
   intermediate observations, per-conversation scratchpad:

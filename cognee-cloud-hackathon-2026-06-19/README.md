@@ -10,8 +10,8 @@
 Karpathy popularised the idea of an LLM Wiki — a knowledge base the model
 grows and maintains for itself. In this hackathon we take that idea and make
 it concrete: you will build a **Company Brain**, an LLM knowledge base for a
-team or company, on top of Cognee's memory engine — running on **Cognee
-Cloud**.
+team or company, on top of Cognee's memory engine — with **Cognee Cloud**
+ready whenever you want a managed home for it.
 
 Karpathy's note for reference:
 https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
@@ -32,24 +32,27 @@ self-improves from feedback. Your brain must support three base operations:
 The goal is not just retrieval — it is a brain that gets smarter the more it
 is used.
 
-## Memory Architecture — Cognee Cloud Is the Single Home
+## Memory Architecture — One Brain, Two Tiers
 
-> ⚠️ **Mandatory:** to qualify, your Company Brain must run on a **Cognee
-> Cloud** instance via `cognee.serve(...)`. A project that does not run on
-> Cognee Cloud is **not eligible** for prizes. We hand every team a dedicated
-> Cloud URL + API key at kickoff — there is nothing to set up in advance.
+> 💎 **Cognee Cloud is optional — but it boosts your reward.** Your Company
+> Brain runs locally out of the box. Connecting it to **Cognee Cloud** via
+> `cognee.serve(...)` is an optional first step that judges reward: there's a
+> dedicated **"Best use of Cognee Cloud"** bonus, and Cloud projects start
+> ahead on the rubric. We hand every team a dedicated Cloud URL + API key at
+> kickoff — there's nothing to set up in advance.
 
-There is no separate session-memory product. **Cognee Cloud holds both
-tiers** — the fast per-conversation scratchpad and the durable, cross-session
-knowledge graph — inside the same managed instance:
+Your brain has two memory tiers — a fast per-conversation scratchpad and a
+durable, cross-session knowledge graph. Both live inside the **same cognee
+instance**, whether you run it locally (the default) or point it at **Cognee
+Cloud**:
 
 ```text
                     [ agent / user ]
                           │
                           ▼
    ┌───────────────────────────────────────────────────┐
-   │                  Cognee Cloud                       │
-   │            (your team's managed instance)           │
+   │               Your cognee instance                  │
+   │      (local by default · Cognee Cloud optional)     │
    │                                                     │
    │   ┌─────────────────────────────────────────────┐  │
    │   │  session memory  (session_id=...)            │  │  fast, ephemeral
@@ -150,8 +153,11 @@ All times **Central European Time (CET)**.
 
 ```bash
 uv venv && source .venv/bin/activate
-uv pip install cognee
+uv pip install cognee==1.2.0.dev1
 ```
+
+> Use the **`1.2.0.dev1`** prerelease for this hackathon — it's the version the
+> Cognee Cloud APIs (`cognee.serve` / `remember` / `recall`) are built against.
 
 ### 2. Configure the LLM
 
@@ -165,12 +171,13 @@ Or drop it into a local `.env` based on cognee's [`.env.template`](https://githu
 Prefer your own provider? Set `LLM_PROVIDER` / `LLM_MODEL` per the
 [provider docs](https://docs.cognee.ai/setup-configuration/llm-providers).
 
-### 3. Connect to Cognee Cloud (mandatory)
+### 3. Connect to Cognee Cloud (optional, rewarded)
 
-Your Company Brain must live on the **Cognee Cloud** instance we hand you.
-Point at it once with `cognee.serve(...)` — every `remember` / `recall` /
-`forget` / `improve` call after that targets your managed instance, with both
-session memory and the permanent graph inside it:
+Cognee runs locally by default, so this step is optional — but it's the
+highest-leverage thing you can do for your score (see the bonus above). Point
+at the **Cognee Cloud** instance we hand you once with `cognee.serve(...)` —
+every `remember` / `recall` / `forget` / `improve` call after that targets your
+managed instance, with both session memory and the permanent graph inside it:
 
 ```python
 import cognee
@@ -192,7 +199,8 @@ import cognee
 
 
 async def main():
-    # Connect to your managed Cognee Cloud instance (mandatory)
+    # Optional: connect to your managed Cognee Cloud instance (boosts your reward).
+    # Drop this line to run fully locally instead.
     await cognee.serve(url="https://your-instance.cognee.ai", api_key="ck_...")
 
     # Store permanently in the knowledge graph (runs add + cognify + improve)
@@ -228,8 +236,8 @@ if __name__ == "__main__":
 ### 5. Push a local brain to Cognee Cloud
 
 Prefer to build locally first? Develop against a local cognee instance, then
-**push** your finished brain up to the Cognee Cloud instance we gave you —
-either path satisfies the "runs on Cognee Cloud" requirement.
+**push** your finished brain up to the Cognee Cloud instance we gave you — an
+easy way to earn the Cognee Cloud bonus without changing how you build.
 
 `cognee.push(...)` composes *export + upload*: it exports the dataset as a
 portable COGX archive, uploads it to your Cloud instance, and imports it there.
@@ -292,6 +300,22 @@ cognee-cli forget --all
 ```
 
 Launch the local UI with `cognee-cli -ui` (web app at http://localhost:3000).
+
+### Run cognee as a local server
+
+You don't have to use the Cloud to get a server. Cognee can run as a **local
+server** on your own machine — the same `remember` / `recall` / `forget` /
+`improve` API plus a graph explorer UI, all hosted locally:
+
+```bash
+uv pip install cognee==1.2.0.dev1   # if you haven't already
+cognee-cli -ui            # starts the local cognee server + web UI at http://localhost:3000
+```
+
+Cognee Cloud is the managed version of exactly this server — so you can develop
+against the local server during the event and, when you want the reward bonus,
+connect with `cognee.serve(...)` or `cognee.push(...)` (below) to move your
+brain into the Cloud.
 
 ## Skills & the Self-Improvement Loop
 
@@ -356,8 +380,12 @@ have several skills (an ingestor, an answerer, a linter, a critic).
 
 ### Run the loop from Python
 
+> **Install first:** `uv pip install cognee==1.2.0.dev1` (see [Setup](#setup)). The imports
+> below ship with cognee — no extra packages needed.
+
 ```python
 import asyncio
+import os
 
 import cognee
 from cognee import SearchType
@@ -366,45 +394,36 @@ from cognee.modules.engine.operations.setup import setup
 
 DATASET = "company-brain"
 SESSION = "brain-session-1"
+SKILLS_DIR = "./my_skills"  # run this from inside the event folder
 
 
-def result_items(result):
-    if isinstance(result, dict):
-        return result.get("items", [])
-    return getattr(result, "items", [])
-
-
-async def main():
-    # Connect to your managed Cognee Cloud instance (mandatory).
-    await cognee.serve(url="http://127.0.0.1:8000")
-
+async def build_locally():
+    """Ingest skills, run the agent, score it, then propose + apply an improvement."""
     # Fresh slate — drop these two prune calls if you want to keep prior runs.
     await cognee.prune.prune_data()
     await cognee.prune.prune_system(metadata=True)
     await setup()
 
-    # 1. Ingest skills into the graph.
+    # 1. Ingest skills into the graph, then read the skill names back off the result.
     remembered = await cognee.remember(
-        "./cognee-cloud-hackathon-2026-06-19/my_skills",
+        SKILLS_DIR,
         dataset_name=DATASET,
         content_type="skills",
     )
-    print("skill ingest:", remembered)
-    remembered_items = result_items(remembered)
-    print("skill items:", remembered_items)
-    skill_names = [item["name"] for item in remembered_items if item.get("kind") == "skill"]
+    skill_names = [item["name"] for item in remembered.items if item["kind"] == "skill"]
     if not skill_names:
-        raise RuntimeError("No skills were ingested into the target dataset.")
-    skill_to_improve = skill_names[0]
-    print("resolved skill name:", skill_to_improve)
+        raise RuntimeError("No skills were ingested.")
 
-    # 2. Run the agent against the skills. session_id keeps working memory in
-    #    the Cloud session tier. Ask the agent to return a JSON score.
+    user, datasets = await resolve_authorized_user_datasets(DATASET, None)
+    dataset = datasets[0]
+
+    # 2. Run the agent against the skills. session_id keeps working memory in the
+    #    session tier. Ask the agent to return a JSON score.
     answer = await cognee.search(
         "Answer: how is retention calculated? Return JSON with a score 0..1.",
         query_type=SearchType.AGENTIC_COMPLETION,
         datasets=[DATASET],
-        skills=[skill_to_improve],
+        skills=skill_names,
         max_iter=6,
         session_id=SESSION,
     )
@@ -412,6 +431,7 @@ async def main():
 
     # 3. Score the run. In real life: parse `answer`, run an eval, etc.
     score = 0.3
+    skill_to_improve = skill_names[0]
 
     # 4. Record feedback. apply=False -> propose a rewrite, don't change the
     #    skill yet. score_threshold sets when a proposal is generated.
@@ -435,15 +455,48 @@ async def main():
     proposal_items = result_items(proposal_result)
     print("proposal items:", proposal_items)
 
+    # 5. Apply the proposal explicitly (skip gracefully if none was generated).
     proposal_id = next(
         (
             item["proposal_id"]
-            for item in proposal_items
+            for item in proposal_result.items
             if item.get("kind") == "skill_improvement_proposal"
         ),
         None,
     )
+    if proposal_id is None:
+        print("No proposal generated — nothing to apply.")
+        return
+
+    await improve_skill(
+        skill_to_improve,
+        dataset=dataset,
+        user=user,
+        proposal_id=proposal_id,
+        apply=True,
+    )
     print("proposal_id:", proposal_id)
+
+
+async def push_to_cloud():
+    """Optional, rewarded: push your locally-built brain up to Cognee Cloud.
+
+    Credentials come from the environment — never hardcode your API key.
+    Both are handed out at kickoff:
+        export COGNEE_CLOUD_URL="https://your-instance.cognee.ai"
+        export COGNEE_API_KEY="ck_..."
+    """
+    await cognee.serve(
+        url=os.environ["COGNEE_CLOUD_URL"],
+        api_key=os.environ["COGNEE_API_KEY"],
+    )
+    print("pushed:", await cognee.push(DATASET))
+
+
+async def main():
+    await build_locally()
+    # Uncomment once COGNEE_CLOUD_URL / COGNEE_API_KEY are set to earn the bonus:
+    # await push_to_cloud()
 
 
 asyncio.run(main())
@@ -451,10 +504,11 @@ asyncio.run(main())
 
 What the knobs do:
 
-- **`session_id`** — keeps working memory for this run in the Cloud session
-  tier. Different sessions stay isolated; distillation into the permanent
-  graph happens when you call `cognee.remember(...)` without a `session_id`
-  (or via the background sync).
+- **`session_id`** — keeps working memory for this run in the session tier
+  (inside your Cloud instance when connected, local otherwise). Different
+  sessions stay isolated; distillation into the permanent graph happens when
+  you call `cognee.remember(...)` without a `session_id` (or via the background
+  sync).
 - **`max_iter`** — caps how many agent reasoning steps run before returning.
 - **`score_threshold`** (in `skill_improvement`) — only generate a proposal
   when the run score falls *below* this value. Raise it to be aggressive
@@ -489,11 +543,11 @@ parsing, before/after skill bodies) lives in the cognee repo at
 
 | What | How | When to use |
 |------|-----|-------------|
-| Cognee Cloud | `await cognee.serve(url=..., api_key=...)` | **Mandatory** — your Company Brain's home for the event |
+| Cognee Cloud | `await cognee.serve(url=..., api_key=...)` | **Optional, rewarded** — managed home for your brain; boosts your score |
 | Push to Cloud | `await cognee.push("dataset")` | Upload a locally-built brain to your Cloud instance |
-| Python SDK | `import cognee` | Building your brain / agent logic |
+| Python SDK | `import cognee` | Building your brain / agent logic (runs locally by default) |
 | CLI | `cognee-cli remember / recall / forget` | Smoke-tests, ad-hoc ingestion |
-| Local UI | `cognee-cli -ui` → http://localhost:3000 | Inspecting the graph visually |
+| Local server + UI | `cognee-cli -ui` → http://localhost:3000 | Run cognee as a local server; inspect the graph visually |
 | Claude Code plugin | [`cognee-integrations`](https://github.com/topoteretes/cognee-integrations/tree/main/integrations/claude-code) | Giving Claude Code persistent memory |
 | Examples | [`examples/`](https://github.com/topoteretes/cognee/tree/main/examples) in the cognee repo | Reference pipelines & demos |
 
@@ -504,7 +558,8 @@ Each team submits:
 - a short writeup of the idea and self-improvement loop
 - the Company Brain implementation (code + skills, if any)
 - before/after evidence that the brain improved from feedback
-- proof it runs on a Cognee Cloud instance (`cognee.serve`)
+- if you used Cognee Cloud (`cognee.serve` / `cognee.push`), note it — it
+  counts toward the **"Best use of Cognee Cloud"** bonus
 - a 3-minute demo
 
 Use [`templates/SUBMISSION.md`](./templates/SUBMISSION.md) — copy it into your
