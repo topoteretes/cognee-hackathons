@@ -3,7 +3,7 @@
 ## Team
 
 - Team name: MediMind
-- Participants: Bhoomika Ganapuram, Nirvisha Sriram
+- Participants: Bhoomika Ganapuram
 - Wiki / project name: MediMind — Personal Health Memory Agent
 
 ## Wiki Overview
@@ -19,19 +19,19 @@ MediMind is a personal health wiki that ingests doctor notes, medication lists, 
 ### Ingest
 
 - What goes in: Doctor visit summaries, medication lists, lab results, patient-reported symptoms and updates
-- How it is captured: `cognee.remember(text)` for permanent graph storage, `cognee.remember(text, session_id=...)` for Redis session cache. OpenAI GPT-4o-mini extracts structured health entities (medications, conditions, symptoms, allergies, lab values) with connections between them. New data updates existing entries if they match (e.g. dosage change), rather than duplicating.
+- How it is captured: `cognee.remember(text)` for permanent graph storage, `cognee.remember(text, session_id=...)` for Redis session cache. OpenAI GPT-4o-mini extracts structured health entities (medications, conditions, symptoms, allergies, lab values) with connections between them.
 - Code entry point: `wiki/ingester.py` — `ingest_health_text()`
 
 ### Query + Self-improve
 
 - How users query the wiki: Chat interface — ask natural language health questions ("Can I take ibuprofen with my current meds?")
-- Where feedback comes from: User corrections ("My doctor changed my dosage"), safety warnings auto-filed back into wiki as new entries (Karpathy pattern — wiki grows from queries)
-- How feedback updates the wiki: Corrections feed into `SkillRunEntry` → propose skill rewrite → `improve_skill(apply=True)` rewrites SKILL.md files on disk, then re-ingests into Cognee graph. Falls back to LLM-generated improvement if native API unavailable.
+- Where feedback comes from: User corrections ("My doctor changed my dosage"), safety warnings auto-filed back into wiki as new entries
+- How feedback updates the wiki: Corrections feed into `SkillRunEntry` → propose skill rewrite → `improve_skill(apply=True)` rewrites SKILL.md files. Falls back to LLM-generated improvement if native API unavailable. Query warnings auto-create wiki entries (Karpathy pattern: wiki grows from queries).
 - Code entry point: `wiki/advisor.py` — `ask_medimind()`, `wiki/skills.py` — `propose_improvement()` / `apply_improvement()`
 
 ### Lint
 
-- What "linting" means in your wiki: Catch contradictions (penicillin allergy + amoxicillin prescription), flag outdated info (old dosages after doctor changed them), remove redundant entries, fill important gaps (condition without treatment), assess completeness
+- What "linting" means in your wiki: Catch contradictions (penicillin allergy + amoxicillin prescription), flag outdated info (old dosages after doctor changed them), remove redundant entries, fill important gaps (condition without treatment), assess bias/completeness
 - How it runs: On-demand via UI ("Run Audit" or "Auto-Fix & Fill Gaps")
 - Code entry point: `wiki/linter.py` — `lint_wiki()`, `auto_lint_and_improve()`
 
@@ -40,8 +40,8 @@ MediMind is a personal health wiki that ingests doctor notes, medication lists, 
 ### Baseline Run
 
 - Query / task: "Can I take ibuprofen for my knee pain?"
-- Result: Identified ibuprofen + Lisinopril interaction and kidney risk, but did not proactively check drug families for allergy cross-reactivity
-- Score: 0.7
+- Result: Identified ibuprofen + Lisinopril interaction and kidney risk
+- Score: 0.7 — caught the interaction but didn't check drug families for allergy cross-reactivity
 - Recorded feedback:
 
 ```text
@@ -111,43 +111,56 @@ User pastes doctor notes / asks question
 
 ## Agents / Skills
 
+```text
 Skill path(s): my_skills/
 Roles:
   - health-advisor: Cross-references full health profile to answer questions, flags interactions
   - safety-checker: Drug interaction scanner, allergy cross-reactivity, contraindication checker
   - wiki-linter: Contradiction detector, gap filler, redundancy pruner, completeness auditor
-
+```
 
 ## Reproduction
 
 ```bash
+# Clone and enter project
 cd teams/medimind
+
+# Install dependencies
 pip install "cognee[redis]" streamlit openai redis python-dotenv nest_asyncio
+
+# Start Redis
 redis-server --daemonize yes
+
+# Set environment
 export LLM_API_KEY="<your-key>"
 export REDIS_URL=redis://localhost:6379
+
+# Run
 streamlit run app.py
 ```
 
 Environment variables required:
 
+```text
 LLM_API_KEY (or OPENAI_API_KEY)
 REDIS_URL=redis://localhost:6379
+```
 
 ## Demo
 
-- Live demo link: https://escalator-remold-kangaroo.ngrok-free.dev
+- Live demo link: localhost:8501 (run locally)
 - 3-minute pitch outline:
 
-1. Problem: 3M deaths/year from unsafe care. Half of preventable harm is medication-related. Health data scattered across systems.
-2. Ingest: Paste doctor notes → extracts 20+ structured health entries into wiki
-3. Query: "Can I take ibuprofen?" → catches drug interaction + kidney risk. Safety notes filed back into wiki.
-4. Lint: Add Amoxicillin → linter catches penicillin allergy contradiction. Auto-fills gaps.
-5. Self-improve: Propose → Apply → advisor skill v1→v2, now checks drug families for allergy cross-reactivity
-6. Vision: Connect to real EHR/pharmacy data. 53M unpaid caregivers need this. This is the company we want to build.
+```text
+1. Problem: Health info scattered across doctors, pharmacies, portals. 1 in 30 patients harmed by medication errors.
+2. Ingest: Paste doctor notes → extracts 20+ structured health entries
+3. Query: "Can I take ibuprofen?" → catches interaction + files safety note back into wiki
+4. Lint: Add Amoxicillin → linter catches penicillin allergy contradiction
+5. Self-improve: Propose → Apply → advisor skill v1→v2, now checks drug families
+6. Vision: Connect to real EHR/pharmacy data. Every caregiver's daughter needs this.
+```
 
 ## Links
 
-- Repo: https://github.com/bganapuram-spec/cognee-hackathons
-- Live app: https://escalator-remold-kangaroo.ngrok-free.dev
+- Repo: (this PR)
 - Built with: Cognee + Redis + OpenAI GPT-4o-mini + Streamlit
