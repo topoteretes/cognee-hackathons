@@ -4,11 +4,11 @@
 
 - Team name: Citadel Archive
 - Participants: Hrishikesh and Sarthi
-- Company Brain / project name: Citadel Cloud Archive
+- Company Brain / project name: Citadel Archive
 
 ## Company Brain Overview
 
-Citadel Cloud Archive is an Organization Vault: a company brain for teams and agents that continuously ingests approved project sources, turns them into structured Cognee memory, exposes the memory through a web UI, HTTP API, and hosted MCP server, and then improves itself from source activity, user feedback, and bounded optimization passes. The brain is designed for real company usage rather than toy retrieval: every answer is provenance-carrying, every write is access-controlled, conflicts stay visible until resolved, and self-improvement is additive so the system gets smarter without silently deleting or overwriting prior knowledge.
+Citadel Archive is an Organization Vault: a company brain for teams and agents that continuously ingests approved project sources, turns them into structured Cognee memory, exposes the memory through a web UI, HTTP API, and hosted MCP server, and then improves itself from source activity, user feedback, and bounded optimization passes. The brain is designed for real company usage rather than toy retrieval: every answer is provenance-carrying, every write is access-controlled, conflicts stay visible until resolved, and self-improvement is additive so the system gets smarter without silently deleting or overwriting prior knowledge.
 
 - Repo: [https://github.com/Hrishikesh332/Citadel-Archive](https://github.com/Hrishikesh332/Citadel-Archive)
 - Hosted deployed URL: [https://citadel-archive.onrender.com](https://citadel-archive.onrender.com)
@@ -93,7 +93,7 @@ Additional concrete checks from the reference implementation:
   - provenance metadata
         |
         v
-[Cognee Cloud / Cognee instance]
+[Cognee instance]
   - session memory: private seat/session scratchpad (session_id=...)
   - permanent graph: central Organization Vault knowledge (no session_id)
   - vector + graph recall
@@ -107,7 +107,7 @@ Additional concrete checks from the reference implementation:
 
 The core split is seat/session memory versus central durable memory. A user's private node writes to `seat:<slug>` with a matching session such as `seat-bob`, while company-ready knowledge is promoted to the central dataset (`masumi-network`). Promotion is explicit: org-bound tags such as `org-ready`, `vault-contribution`, `repo-content`, and `product-knowledge` decide whether content remains private, goes straight to central memory, or dual-writes private node plus central graph.
 
-### Cognee Cloud (optional, rewarded)
+### Cognee Instance
 
 - What the team writes to session memory (`session_id=...`): Raw agent/user turns, private seat notes, GitHub daily sync session material (`masumi-github-daily`), repo-content sync session material (`masumi-repo-content`), and feedback-linked QA context.
 - What goes straight to the permanent graph (no `session_id`): Curated vault contributions, organization-ready notes, repository product knowledge, source-linked decisions, and self-improvement optimization notes.
@@ -115,7 +115,7 @@ The core split is seat/session memory versus central durable memory. A user's pr
 - What stays session-only vs. what gets promoted: Raw personal scratchpad, local seat memory, and transient agent context stay scoped to the session/private node. Decisions, source facts, runbooks, docs, and organization-ready contributions are promoted to central memory.
 - Proof the brain got smarter between baseline and improved run: After adding fallback recall, provenance metadata, dedupe, and improve-on-feedback, the same company-activity query returns source-linked answers instead of an empty or uncited response.
 
-For the hackathon demo, the same two tiers are intended to run inside the dedicated Cognee Cloud instance by calling `cognee.serve(url=os.environ["COGNEE_CLOUD_URL"], api_key=os.environ["COGNEE_API_KEY"])` before Citadel performs `remember`, `recall`, and `improve`. The project repository is [https://github.com/Hrishikesh332/Citadel-Archive](https://github.com/Hrishikesh332/Citadel-Archive), and the deployed version is available at [https://citadel-archive.onrender.com](https://citadel-archive.onrender.com).
+For the hackathon demo, the same two tiers are intended to run inside the dedicated Cognee instance by calling `cognee.serve(url=os.environ["COGNEE_INSTANCE_URL"], api_key=os.environ["COGNEE_API_KEY"])` before Citadel performs `remember`, `recall`, and `improve`. The project repository is [https://github.com/Hrishikesh332/Citadel-Archive](https://github.com/Hrishikesh332/Citadel-Archive), and the deployed version is available at [https://citadel-archive.onrender.com](https://citadel-archive.onrender.com).
 
 ## Agents / Skills (if any)
 
@@ -143,7 +143,7 @@ Commands to reproduce the demo:
 cd /Users/hrishikesh/Documents/cogneex/Citadel-Archive
 uv sync --dev
 
-export COGNEE_CLOUD_URL="https://your-instance.cognee.ai"
+export COGNEE_INSTANCE_URL="https://your-instance.cognee.ai"
 export COGNEE_API_KEY="ck_..."
 export LLM_API_KEY="<event-provided-llm-key>"
 export CITADEL_ADMIN_KEY="local-admin"
@@ -191,7 +191,7 @@ curl -fsS -X POST http://localhost:8000/api/learning-agent/optimize \
 Environment variables required:
 
 ```text
-COGNEE_CLOUD_URL
+COGNEE_INSTANCE_URL
 COGNEE_API_KEY
 LLM_API_KEY
 CITADEL_ADMIN_KEY
@@ -229,7 +229,7 @@ OPENROUTER_API_KEY                # optional alternative for enrichment/optimiza
    Ask again and show source-linked results with dataset, content hash, provenance, and document drill-down.
 
 6. What is next
-   Move all tiers fully into Cognee Cloud, add richer skill-run scoring, and expand the hosted MCP/seat-node model for teams.
+   Move all tiers fully into the managed Cognee instance, add richer skill-run scoring, and expand the hosted MCP/seat-node model for teams.
 ```
 
 ## Links
