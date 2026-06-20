@@ -1,0 +1,110 @@
+# DigitalOcean App Platform specification
+# Deploy with: doctl apps create --spec .do/app.yaml
+name: cognee-qdrant-starter
+
+services:
+  - name: procurement-search
+    github:
+      repo: <your-github-repo>
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    build_command: ""
+    envs:
+      - key: PROJECT
+        value: project1-procurement-search
+      - key: PORT
+        value: "7777"
+      - key: LLM_MODE
+        value: remote
+      - key: EMBED_MODE
+        value: remote
+      - key: QDRANT_URL
+        type: SECRET
+      - key: QDRANT_API_KEY
+        type: SECRET
+      - key: LLM_API_URL
+        type: SECRET
+      - key: LLM_API_KEY
+        type: SECRET
+      - key: LLM_MODEL_NAME
+        value: distil-labs-slm
+      - key: EMBED_API_URL
+        type: SECRET
+      - key: EMBED_API_KEY
+        type: SECRET
+    http_port: 7777
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    routes:
+      - path: /
+
+  - name: spend-analytics
+    github:
+      repo: <your-github-repo>
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    envs:
+      - key: PROJECT
+        value: project2-spend-analytics
+      - key: PORT
+        value: "5553"
+      - key: LLM_MODE
+        value: remote
+      - key: EMBED_MODE
+        value: remote
+      - key: QDRANT_URL
+        type: SECRET
+      - key: QDRANT_API_KEY
+        type: SECRET
+      - key: LLM_API_URL
+        type: SECRET
+      - key: LLM_API_KEY
+        type: SECRET
+      - key: LLM_MODEL_NAME
+        value: distil-labs-slm
+      - key: EMBED_API_URL
+        type: SECRET
+      - key: EMBED_API_KEY
+        type: SECRET
+    http_port: 5553
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    routes:
+      - path: /analytics
+
+  - name: anomaly-detective
+    github:
+      repo: <your-github-repo>
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    envs:
+      - key: PROJECT
+        value: project3-anomaly-detective
+      - key: PORT
+        value: "6971"
+      - key: LLM_MODE
+        value: remote
+      - key: EMBED_MODE
+        value: remote
+      - key: QDRANT_URL
+        type: SECRET
+      - key: QDRANT_API_KEY
+        type: SECRET
+      - key: LLM_API_URL
+        type: SECRET
+      - key: LLM_API_KEY
+        type: SECRET
+      - key: LLM_MODEL_NAME
+        value: distil-labs-slm
+      - key: EMBED_API_URL
+        type: SECRET
+      - key: EMBED_API_KEY
+        type: SECRET
+    http_port: 6971
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    routes:
+      - path: /anomalies

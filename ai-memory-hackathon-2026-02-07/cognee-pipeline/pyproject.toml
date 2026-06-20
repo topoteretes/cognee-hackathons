@@ -1,0 +1,13 @@
+[project]
+name = "cognee-pipeline"
+version = "0.1.0"
+description = "cognee data ingestion pipeline: raw docs -> knowledge graph -> Qdrant"
+requires-python = ">=3.12"
+dependencies = [
+    "cognee==0.4.1",
+    "cognee-community-vector-adapter-qdrant==0.1.0",
+    "pandas>=3.0.0",
+    "python-dotenv>=1.2.1",
+    "qdrant-client>=1.16.2",
+    "transformers>=4.57.6",
+]

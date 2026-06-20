@@ -1,0 +1,42 @@
+services:
+  project1:
+    build:
+      context: .
+      args:
+        INSTALL_LLAMA_CPP: "false"
+    env_file: .env
+    environment:
+      PROJECT: project1-procurement-search
+      PORT: "7777"
+      LLM_MODE: remote
+      EMBED_MODE: remote
+    ports:
+      - "7777:7777"
+
+  project2:
+    build:
+      context: .
+      args:
+        INSTALL_LLAMA_CPP: "false"
+    env_file: .env
+    environment:
+      PROJECT: project2-spend-analytics
+      PORT: "5553"
+      LLM_MODE: remote
+      EMBED_MODE: remote
+    ports:
+      - "5553:5553"
+
+  project3:
+    build:
+      context: .
+      args:
+        INSTALL_LLAMA_CPP: "false"
+    env_file: .env
+    environment:
+      PROJECT: project3-anomaly-detective
+      PORT: "6971"
+      LLM_MODE: remote
+      EMBED_MODE: remote
+    ports:
+      - "6971:6971"

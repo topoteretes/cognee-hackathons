@@ -1,0 +1,11 @@
+# Granola note 06f70c5a-7613-4403-a5c9-35ba5821483f
+[unknown, 2026-05-29T09:39] Hi, Milenko.
+[guest, 2026-05-29T09:39] Hi, Veljko. So I've taken a look about the report that you sent, and it seems that for node sets, you need to pass node set IDs instead of node set names. That should clear the issue.
+[unknown, 2026-05-29T09:39] Oh, so do you think that this was Oh, so do you think that this was my problem? Because when I was doing a search, every single time, although I had put notes at, I was getting all the data out again.
+[guest, 2026-05-29T09:39] Yes. So you need to set the specific notes to get to target them.
+[unknown, 2026-05-29T09:40] Okay. Okay. Cool. Let me try this. And what Cogniv version should I use?
+[guest, 2026-05-29T09:40] You should use You should use Cognia one point zero point zero or newer versions.
+[unknown, 2026-05-29T09:40] Okay. Thanks a lot, Okay. Thanks a lot, Milenko.
+[guest, 2026-05-29T09:40] Yeah. Thank you.
+## Reported issue candidates
+- [guest, 2026-05-29T09:39] Hi, Veljko. So I've taken a look about the report that you sent, and it seems that for node sets, you need to pass node set IDs instead of node set names. That should clear the issue.

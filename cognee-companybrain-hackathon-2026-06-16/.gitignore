@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+
+# Virtual envs
+.venv/
+venv/
+.python-version
+
+# uv
+uv.lock
+
+# Env files (never commit secrets)
+.env*
+!.env.example
+
+# Cognee local storage (when running in-process)
+.cognee_system/
+cognee_data/
+
+# Editor
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+
+# Tutorial artifacts
+tutorial/*.html
+.ipynb_checkpoints/
+# ...except the demo graphs we share with the team (open locally in a browser):
+!tutorial/graph.html
+!tutorial/graph_default.html
+!tutorial/graph_typed.html

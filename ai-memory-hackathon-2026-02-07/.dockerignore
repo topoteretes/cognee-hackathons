@@ -1,0 +1,10 @@
+models/
+snapshots/
+*.snapshot
+*.zip
+.env
+.git
+__pycache__
+*.pyc
+.venv
+lance-to-qdrant/

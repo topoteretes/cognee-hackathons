@@ -1,0 +1,54 @@
+# DigitalOcean App Platform Spec
+# Deploy: doctl apps create --spec do-app-spec.yaml
+
+name: cognee-search
+
+services:
+  - name: api
+    github:
+      repo: your-org/cognee-pipeline
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    instance_count: 1
+    instance_size_slug: professional-xs
+    http_port: 8080
+    routes:
+      - path: /
+    envs:
+      - key: ENABLE_BACKEND_ACCESS_CONTROL
+        value: "false"
+      - key: VECTOR_DB_PROVIDER
+        value: "qdrant"
+      - key: VECTOR_DB_URL
+        type: SECRET
+        value: "${QDRANT_URL}"
+      - key: VECTOR_DB_KEY
+        type: SECRET
+        value: "${QDRANT_API_KEY}"
+      - key: VECTOR_DB_NAME
+        value: "cognee_db"
+      - key: EMBEDDING_PROVIDER
+        value: "ollama"
+      - key: EMBEDDING_MODEL
+        value: "nomic-embed-text"
+      - key: EMBEDDING_DIMENSIONS
+        value: "768"
+      - key: EMBEDDING_ENDPOINT
+        value: "http://ollama:11434/api/embeddings"
+      - key: OPENAI_API_KEY
+        type: SECRET
+        value: "${OPENAI_API_KEY}"
+
+  - name: ollama
+    image:
+      registry_type: DOCKER_HUB
+      repository: ollama/ollama
+      tag: latest
+    instance_count: 1
+    instance_size_slug: professional-m
+    internal_ports:
+      - 11434
+    envs:
+      - key: OLLAMA_MODELS
+        value: "nomic-embed-text"

@@ -14,12 +14,18 @@ that learn, remember, and improve over time.
 
 | Date | Hackathon | Partner | Folder |
 |------|-----------|---------|--------|
+| 2026-02-07 | AI Hack Night: Build on a Prebuilt AI-Memory Knowledge Graph | Qdrant, Distil Labs, DigitalOcean | [`ai-memory-hackathon-2026-02-07`](./ai-memory-hackathon-2026-02-07) |
+| 2026-04-25 | Cognee Daytona Moss Hackathon: PR Rescue Arena | Daytona, Moss | [`cognee-daytona-moss-hackathon-2026-04-25`](./cognee-daytona-moss-hackathon-2026-04-25) |
 | 2026-05-16 | AI-Memory Hackathon: Building your own Agent LLM Wiki | Redis | [`cognee-redis-hackathon-2026-05-16`](./cognee-redis-hackathon-2026-05-16) |
+| 2026-06-16 | Cognee Company Brain: Slack + Granola Knowledge Graph | — | [`cognee-companybrain-hackathon-2026-06-16`](./cognee-companybrain-hackathon-2026-06-16) |
 | 2026-06-19 | Cognee Cloud Hackathon: Build Your Company Brain | — | [`cognee-cloud-hackathon-2026-06-19`](./cognee-cloud-hackathon-2026-06-19) |
 
 ## Repository Layout
 
-Each hackathon folder follows the same structure:
+Every hackathon folder is named `<hackathon-name>-<YYYY-MM-DD>` and starts with
+a `README.md` covering the event overview, setup, schedule, and prizes.
+
+Brief-style hackathons follow this layout:
 
 ```text
 <hackathon-name>-<YYYY-MM-DD>/
@@ -29,6 +35,11 @@ Each hackathon folder follows the same structure:
   templates/        # submission template
   examples/         # reference implementations or before/after examples
 ```
+
+Some hackathons were full standalone project repos before being archived here.
+Those folders preserve their original project structure (source code,
+`pyproject.toml`, Docker files, notebooks, sample data, etc.) alongside their
+`README.md`. Start from each folder's `README.md` either way.
 
 ## Participating
 
