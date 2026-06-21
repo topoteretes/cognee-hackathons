@@ -81,10 +81,13 @@ class Message(DataPoint):
 class Thread(DataPoint):
     """The root for one Slack thread or Granola meeting."""
 
+    title: str
+    source: str
+    doc_id: str
     channel: str
     started_at: str  # ISO timestamp
     participants: list[Person]
     messages: list[Message]
     product: Optional[Product] = None
     client: Optional[Client] = None
-    metadata: dict = {"index_fields": ["channel"]}
+    metadata: dict = {"index_fields": ["title", "source", "doc_id", "channel", "started_at"]}

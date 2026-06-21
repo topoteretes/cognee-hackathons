@@ -67,7 +67,13 @@ class Doc:
 
     def body(self) -> str:
         header = f"# {self.title}"
-        parts = [header, self.transcript()]
+        metadata = [
+            f"Source: {self.source}",
+            f"Container: {self.container}",
+            f"Document ID: {self.doc_id}",
+            f"Started at: {self.started_at.strftime('%Y-%m-%dT%H:%M')}",
+        ]
+        parts = [header, *metadata, self.transcript()]
         issues = self.issue_candidates()
         if issues:
             parts.append("## Reported issue candidates")

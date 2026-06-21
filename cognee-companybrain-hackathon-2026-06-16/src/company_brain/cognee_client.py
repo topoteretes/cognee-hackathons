@@ -31,6 +31,11 @@ _EXTRACTION_PROMPT = """Extract a company conversation graph from the provided t
 The graph model is Thread with nested Person, Message, Topic, Question, Decision, and Issue nodes.
 
 Mandatory extraction rules:
+- Set Thread.title from the markdown H1 line at the top of the document, without the leading "#".
+- Set Thread.source from the "Source:" metadata line.
+- Set Thread.doc_id from the "Document ID:" metadata line.
+- Set Thread.channel from the "Container:" metadata line.
+- Set Thread.started_at from the "Started at:" metadata line.
 - Preserve every line under the transcript as a Message node. Do not summarize away, merge away, or omit short greetings, short acknowledgements, or standalone reports.
 - For each Message, keep the exact speaker identifier, exact timestamp, and exact text from the transcript line.
 - Create Person nodes with both email and name when a People section provides "Name <email>". If only an email is available, use that email as both email and name.
@@ -62,23 +67,28 @@ async def connect() -> None:
     log.info("cognee: connected to %s", url)
 
 
-async def write(doc: Doc) -> None:
+async def write(doc: Doc, *, dataset_name: str | None = None) -> None:
     """v0 path: free-form remember with node_set tags."""
     await cognee.remember(
         doc.body(),
-        dataset_name=_dataset(),
+        dataset_name=dataset_name or _dataset(),
         node_set=doc.tags(),
     )
 
 
-async def write_typed(doc: Doc, extra_tags: list[str] | None = None) -> None:
+async def write_typed(
+    doc: Doc,
+    extra_tags: list[str] | None = None,
+    *,
+    dataset_name: str | None = None,
+) -> None:
     """v2 path: add + cognify constrained to the Thread schema.
 
     Pre-seeded Person nodes (see ``people.seed_people``) anchor the
     extracted speakers/mentions, so this call produces typed Message
     nodes linked to the canonical Persons instead of new duplicates.
     """
-    ds = _dataset()
+    ds = dataset_name or _dataset()
     tags = doc.tags() + (extra_tags or [])
     await cognee.add(
         doc.body(),
@@ -96,10 +106,42 @@ async def recall(
     query: str,
     *,
     node_set: list[str] | None = None,
+    datasets: list[str] | None = None,
     top_k: int = 5,
     only_context: bool = False,
 ) -> list[dict]:
-    kwargs = {"top_k": top_k, "datasets": [_dataset()], "only_context": only_context}
+    kwargs = {"top_k": top_k, "datasets": datasets or [_dataset()], "only_context": only_context}
     if node_set:
         kwargs["scope"] = node_set
     return await cognee.recall(query, **kwargs)
+
+
+async def visualize_graph(output_path: str, *, dataset: str | None = None) -> str:
+    """Write Cognee's graph visualization to an HTML file.
+
+    When ``dataset`` is provided, render the graph from that dataset's database
+    context. Without it, render all datasets the current user can read.
+    """
+    from cognee.context_global_variables import set_database_global_context_variables
+    from cognee.api.v1.visualize import visualize_multi_user_graph
+    from cognee.modules.data.methods import get_authorized_existing_datasets
+    from cognee.modules.users.methods import get_default_user
+
+    user = await get_default_user()
+
+    if dataset is None:
+        datasets = await get_authorized_existing_datasets(None, "read", user)
+        if not datasets:
+            raise ValueError("No readable Cognee datasets found. Run ingest before visualize.")
+        await visualize_multi_user_graph([(user, ds) for ds in datasets], output_path)
+        return output_path
+
+    datasets = await get_authorized_existing_datasets([dataset], "read", user)
+    if not datasets:
+        raise ValueError(f"Dataset not found or not readable: {dataset}")
+
+    dataset_obj = datasets[0]
+    owner_id = getattr(dataset_obj, "owner_id", None) or user.id
+    async with set_database_global_context_variables(dataset_obj.id, owner_id):
+        await cognee.visualize_graph(output_path)
+    return output_path
