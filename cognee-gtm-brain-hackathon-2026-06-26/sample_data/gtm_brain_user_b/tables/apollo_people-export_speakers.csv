@@ -1,0 +1,5 @@
+name,email,title,company,company_domain,tier,uk_based,person_linkedin_url,why_now
+Lee Robinson,lee@vercel.com,VP DevRel,Vercel,vercel.com,A,FALSE,https://www.linkedin.com/in/leeerob/,"Top DevRel voice; anchor-sponsor orbit; warm keynote path"
+Paul Copplestone,paul@supabase.com,CEO,Supabase,supabase.com,A,FALSE,https://www.linkedin.com/in/paulcopplestone/,"Open-source founder; strong EU developer draw"
+Kelsey Hightower,kelsey@independent.dev,Independent,Independent,independent.dev,A,FALSE,https://www.linkedin.com/in/kelsey-hightower/,"Legendary infra speaker; travels for the right room"
+Cassidy Williams,cassidy@independent.dev,Developer Advocate,Independent,independent.dev,B,FALSE,https://www.linkedin.com/in/cassidoo/,"Prolific dev creator; community draw"

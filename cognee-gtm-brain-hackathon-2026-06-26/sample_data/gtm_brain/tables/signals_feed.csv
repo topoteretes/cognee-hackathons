@@ -1,0 +1,10 @@
+observed_on,entity_type,entity,entity_domain,signal_kind,description,source
+2026-03-04,company,Clay,clay.com,office_opened,"Clay opened first international office in London",clay.com/blog/clay-europe-announcement
+2026-03-15,company,Clay,clay.com,hiring_demand_gen,"Hiring Founding Marketer EMEA + London Community Experience Lead",ashby/clay-careers
+2025-08-05,company,Clay,clay.com,raised_round,"Series C $100M led by CapitalG at $3.1B",techcrunch.com
+2026-05-20,company,Cognism,cognism.com,hiring_demand_gen,"Hired Head of Field Marketing EMEA",linkedin
+2026-04-10,company,Pleo,pleo.io,raised_round,"Extension round; EMEA push",sifted
+2026-06-09,person,Sam Jacobs,joinpavilion.com,posting_ai_gtm,"Posting on how AI is rewriting the revenue operating model",linkedin
+2026-06-01,person,Daniel Disney,thedailysales.net,launched_community,"Launched a UK social-selling cohort",linkedin
+2026-05-28,person,Tom Boston,salesloft.com,shipped_result,"Viral GTM video series crossed 1M views",linkedin
+2026-06-12,company,Woodpecker,woodpecker.co,already_sponsors,"Confirmed renewal intent after Warsaw 2026",internal-debrief

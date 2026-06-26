@@ -19,6 +19,7 @@ that learn, remember, and improve over time.
 | 2026-05-16 | AI-Memory Hackathon: Building your own Agent LLM Wiki | Redis | [`cognee-redis-hackathon-2026-05-16`](./cognee-redis-hackathon-2026-05-16) |
 | 2026-06-16 | Cognee Company Brain: Slack + Granola Knowledge Graph | — | [`cognee-companybrain-hackathon-2026-06-16`](./cognee-companybrain-hackathon-2026-06-16) |
 | 2026-06-19 | Cognee Cloud Hackathon: Build Your Company Brain | — | [`cognee-cloud-hackathon-2026-06-19`](./cognee-cloud-hackathon-2026-06-19) |
+| 2026-06-26 | Cognee GTM Brain (Warsaw): Merge Accounts, Deals & Conversations into One Graph | modelguide | [`cognee-gtm-brain-hackathon-2026-06-26`](./cognee-gtm-brain-hackathon-2026-06-26) |
 
 ## Repository Layout
 

@@ -1,0 +1,7 @@
+name,domain,segment,hq_city,size_band,status,is_past_sponsor,notes
+Vercel,vercel.com,devtools,San Francisco,501-1000,Active,FALSE,Frontend cloud; huge DevRel motion; UC anchor for Berlin
+Supabase,supabase.com,devtools,Remote,201-500,Active,TRUE,Berlin 2026 sponsor; strong EU developer base; renewal candidate
+Sentry,sentry.io,devtools,San Francisco,501-1000,Active,TRUE,Berlin 2026 sponsor; observability; renewal candidate
+Postman,postman.com,devtools,San Francisco,1001-5000,Active,FALSE,API tooling; large events budget
+Grafana Labs,grafana.com,devtools,Stockholm,1001-5000,Active,FALSE,EU-HQ observability; strong Berlin draw
+WeAreDevelopers,wearedevelopers.com,community,Vienna,51-200,Do Not Approach,FALSE,Runs a competing developer conference — partner only

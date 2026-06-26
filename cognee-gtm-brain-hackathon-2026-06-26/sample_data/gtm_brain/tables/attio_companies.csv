@@ -1,0 +1,12 @@
+name,domain,segment,hq_city,size_band,status,is_past_sponsor,notes
+Clay,clay.com,revtech,New York,201-500,Active,FALSE,Opened London office Mar 2026; Europe ~20% of revenue; UC2 anchor account
+Pavilion,joinpavilion.com,community,New York,201-500,Do Not Approach,FALSE,Runs GTM2026 — competing-event organiser; keynote/community partner only
+Woodpecker,woodpecker.co,revtech,Wroclaw,51-200,Active,TRUE,Warsaw 2026 sponsor; PLN renewal set; over-performed
+Brand24,brand24.com,revtech,Wroclaw,51-200,Active,TRUE,Warsaw 2026 sponsor; PLN renewal set; over-performed
+Surfer,surferseo.com,revtech,Wroclaw,51-200,Active,TRUE,Warsaw 2026 sponsor; PLN renewal set; over-performed
+Livespace,livespace.io,revtech,Warsaw,11-50,Active,TRUE,Warsaw 2026 sponsor; PLN renewal set
+Cognism,cognism.com,revtech,London,501-1000,Active,FALSE,London-HQ sales intelligence; strong UK fit; NOT a native Clay integration
+Apollo,apollo.io,revtech,San Francisco,1001-5000,Active,FALSE,Sales intelligence + engagement
+Operatix,operatix.net,service,London,201-500,Active,FALSE,UK outbound/GTM agency; sells to same buyer
+Notion Capital,notion.vc,investor,London,11-50,Active,FALSE,London VC backing B2B SaaS; wants founder access
+Pleo,pleo.io,revtech,Copenhagen,501-1000,Active,FALSE,Expanding EMEA; spend-management
