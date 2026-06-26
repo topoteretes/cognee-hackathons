@@ -1,0 +1,4 @@
+# #brain-project: i noticed that there is a bug in code when you want to call remember with node s
+[veljko@topoteretes.com, 2026-05-29T09:02] i noticed that there is a bug in code when you want to call remember with node sets. It keeps extracting everything. Do you have any idea what is it about?
+## Reported issue candidates
+- [veljko@topoteretes.com, 2026-05-29T09:02] i noticed that there is a bug in code when you want to call remember with node sets. It keeps extracting everything. Do you have any idea what is it about?

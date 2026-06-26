@@ -1,0 +1,29 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//GTM Tech Week//London Kit//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:clay-sponsor-2026@gtm-week.com
+DTSTAMP:20260622T000000Z
+DTSTART:20260626T100000Z
+DTEND:20260626T103000Z
+SUMMARY:Clay — sponsorship intro (London 2027)
+DESCRIPTION:Intro call with Clay re: GTM Tech Week London sponsorship. Clay opened its London office Mar 2026; Europe ~20% of revenue. Goal: scope a curated GTM-engineering track, not a generic booth. See brain/account-deep-dive_ANCHOR.md + brain/granola_clay-sponsor-intro-transcript.md.
+LOCATION:Google Meet
+ORGANIZER;CN=Artur Wala:mailto:artur@gtm-week.com
+ATTENDEE;CN=Bruno Estrella;RSVP=TRUE:mailto:bruno@clay.com
+ATTENDEE;CN=Krzysztof Pawlak;RSVP=TRUE:mailto:krzysztof@gtm-week.com
+END:VEVENT
+BEGIN:VEVENT
+UID:keynote-target-2026@gtm-week.com
+DTSTAMP:20260622T000000Z
+DTSTART:20260626T140000Z
+DTEND:20260626T143000Z
+SUMMARY:Sam Jacobs (Pavilion) — keynote ask (London 2027)
+DESCRIPTION:Recruitment call with Sam Jacobs (Pavilion) as a tier-1 keynote candidate for London. Pavilion runs GTM2026 — position as community partner + keynote, not competitor. See brain/granola_keynote-target-call-transcript.md + email-threads/.
+LOCATION:Google Meet
+ORGANIZER;CN=Artur Wala:mailto:artur@gtm-week.com
+ATTENDEE;CN=Sam Jacobs;RSVP=TRUE:mailto:sam@joinpavilion.com
+END:VEVENT
+END:VCALENDAR

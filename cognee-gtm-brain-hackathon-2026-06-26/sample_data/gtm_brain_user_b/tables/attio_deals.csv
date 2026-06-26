@@ -1,0 +1,6 @@
+deal_name,kind,company,company_domain,stage,amount,currency,owner_email,event,next_step
+Vercel — keynote track,sponsorship,Vercel,vercel.com,Proposal,0,EUR,dana@devtools-day.com,DevTools Day Berlin 2027,Send co-created DevRel track proposal
+Supabase — renewal,sponsorship,Supabase,supabase.com,Renewal,30000,EUR,lukas@devtools-day.com,DevTools Day Berlin 2027,Confirm tier; warm renewal from Berlin 2026
+Sentry — renewal,sponsorship,Sentry,sentry.io,Renewal,28000,EUR,lukas@devtools-day.com,DevTools Day Berlin 2027,Confirm tier; warm renewal from Berlin 2026
+Postman — sponsorship,sponsorship,Postman,postman.com,Qualified,0,EUR,dana@devtools-day.com,DevTools Day Berlin 2027,Large budget; API workshop track
+Grafana — sponsorship,sponsorship,Grafana Labs,grafana.com,Discovery,0,EUR,lukas@devtools-day.com,DevTools Day Berlin 2027,EU-HQ; observability track fit

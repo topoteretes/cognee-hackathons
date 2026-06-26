@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//DevTools Day//Berlin Kit//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:vercel-sponsor-2026@devtools-day.com
+DTSTAMP:20260625T000000Z
+DTSTART:20260626T090000Z
+DTEND:20260626T093000Z
+SUMMARY:Vercel — DevRel track scoping (Berlin 2027)
+DESCRIPTION:Scope a co-created developer-first track with Vercel for DevTools Day Berlin. See brain/granola_vercel-sponsor-intro-transcript.md.
+LOCATION:Google Meet
+ORGANIZER;CN=Dana Kowalski:mailto:dana@devtools-day.com
+ATTENDEE;CN=Lee Robinson;RSVP=TRUE:mailto:lee@vercel.com
+ATTENDEE;CN=Lukas Berger;RSVP=TRUE:mailto:lukas@devtools-day.com
+END:VEVENT
+END:VCALENDAR
