@@ -1,0 +1,4 @@
+scribe note-gen model = GPT-4o  <-- this is what we picked for Vitalis
+keep this aligned w/ the clinical summary spec, don't swap without sign-off
+(reminder: latency on long visit notes was the deciding factor)
+TODO: confirm token budget per encounter, check w/ the platform team

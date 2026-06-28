@@ -1,0 +1,3 @@
+{"client":"baustein","question":"Where can we store BauStein raw helmet-cam video?","expect_contains":["EU-Frankfurt"],"must_not_contain":["US-east"]}
+{"client":"baustein","question":"Which LLM does RFI Copilot use today?","expect_contains":["Sonnet"],"must_not_contain":["GPT-4o only"]}
+{"client":"vitalis","question":"Which LLM powers Scribe Assist and is it HIPAA compliant?","expect_contains":["Claude","HIPAA"],"must_not_contain":["consumer OpenAI"]}

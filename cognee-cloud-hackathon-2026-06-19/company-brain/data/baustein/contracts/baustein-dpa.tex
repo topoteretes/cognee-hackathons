@@ -1,0 +1,123 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{parskip}
+\usepackage{titlesec}
+
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.6em}{}
+
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries DATA PROCESSING AGREEMENT --- ADDENDUM No.\ 1}\\[4pt]
+{\large SiteGuard CV Computer-Vision Site-Safety Project}\\[6pt]
+{\normalsize Helix AI Consulting GmbH \quad$\bullet$\quad BauStein GmbH}\\[4pt]
+{\small Document Ref.: HXC-DPA-2025-014-A1 \quad Classification: Confidential --- Contractual}
+\end{center}
+
+\vspace{0.5em}
+\hrule
+\vspace{1em}
+
+\textbf{Effective Date:} 18 February 2025\\
+\textbf{Master Agreement Reference:} Professional Services Agreement HXC-MSA-2024-0091, executed 11 November 2024\\
+\textbf{Supersedes:} None (initial addendum to the signed Data Processing Agreement)
+
+\section{Parties}
+
+This Data Processing Agreement Addendum No.\ 1 (the ``\textbf{Addendum}'') is entered into by and between:
+
+\textbf{(1) Helix AI Consulting GmbH}, a limited liability company organised under the laws of the Federal Republic of Germany, with registered office at Mainzer Landstra\ss e 47, 60329 Frankfurt am Main, Germany (Handelsregister HRB 214887, Amtsgericht Frankfurt am Main), acting in its capacity as \textbf{Processor} (``\textbf{Helix}'' or the ``\textbf{Processor}''); and
+
+\textbf{(2) BauStein GmbH}, a limited liability company organised under the laws of the Federal Republic of Germany, with registered office at Industrieweg 12, 80939 M\"unchen, Germany (Handelsregister HRB 178342, Amtsgericht M\"unchen), acting in its capacity as \textbf{Controller} (``\textbf{BauStein}'' or the ``\textbf{Controller}''),
+
+each a ``\textbf{Party}'' and together the ``\textbf{Parties}''.
+
+\section{Background and Purpose}
+
+\subsection{} BauStein has engaged Helix to design, build and operate the \textbf{SiteGuard CV} platform, a computer-vision system that ingests live and recorded video from cameras deployed across BauStein construction sites for the purpose of automated detection of site-safety incidents (including absence of personal protective equipment, proximity-to-plant violations, and exclusion-zone breaches).
+
+\subsection{} The SiteGuard CV platform necessarily captures video in which construction workers and other on-site personnel may be identifiable. Such video constitutes personal data within the meaning of Regulation (EU) 2016/679 (the ``\textbf{GDPR}''), and certain frames may constitute special categories of data where biometric identification could occur.
+
+\subsection{} This Addendum supplements, and is incorporated by reference into, the Data Processing Agreement executed between the Parties (the ``\textbf{DPA}''). It sets out the specific technical and organisational measures, processing locations, and retention/anonymisation obligations applicable to the SiteGuard CV project. In the event of conflict between this Addendum and the body of the DPA, this Addendum prevails with respect to the SiteGuard CV project only.
+
+\section{Definitions}
+
+\subsection{} ``\textbf{Worker-Identifiable Video}'' means any video stream, recording, frame, clip or derived still image processed by the SiteGuard CV platform in which a natural person is or may reasonably be rendered identifiable, whether by facial features, gait, clothing markings, badge, or other identifying characteristic.
+
+\subsection{} ``\textbf{Anonymisation}'' means the irreversible obscuring of facial regions (face blurring) and any other directly identifying features such that the relevant natural person can no longer be identified from the processed video.
+
+\subsection{} ``\textbf{EU-Frankfurt Region}'' means the cloud infrastructure availability region physically located in Frankfurt am Main, Federal Republic of Germany, as designated in Schedule B of the DPA.
+
+\section{Core Data Protection Obligation}
+
+\subsection{} The Parties expressly agree, and Helix as Processor undertakes, that:
+
+\begin{quote}
+\textbf{All worker-identifiable SiteGuard CV video must be anonymized (faces blurred) within 24 hours and must never leave the EU-Frankfurt region, per GDPR and the signed Data Processing Agreement.}
+\end{quote}
+
+\subsection{Anonymisation deadline.} Helix shall ensure that every item of Worker-Identifiable Video is anonymized, with all faces blurred, no later than \textbf{24 hours} after the moment of capture. Un-anonymised raw footage may be retained only transiently and solely to the extent required to perform the anonymisation processing.
+
+\subsection{Data residency.} Worker-Identifiable Video, and all un-anonymised derivatives thereof, must never leave the \textbf{EU-Frankfurt region}. No copy, backup, cache, model-training extract, or support-access session shall transfer such data outside the EU-Frankfurt region without the prior written authorisation of BauStein and a documented Article 44--49 GDPR transfer mechanism.
+
+\subsection{Legal basis.} The obligations in this Section 4 are imposed pursuant to the GDPR and the signed Data Processing Agreement, and reflect the Controller's documented instructions under Article 28(3)(a) GDPR.
+
+\section{Technical and Organisational Measures}
+
+\subsection{} Helix shall maintain an automated anonymisation pipeline whose service-level configuration enforces the 24-hour deadline, with alerting where any item approaches the deadline without successful anonymisation.
+
+\subsection{} Storage buckets, compute nodes, and inference endpoints used for SiteGuard CV shall be provisioned exclusively within the EU-Frankfurt region, with region-locking controls applied at the infrastructure-as-code layer to prevent inadvertent cross-region replication.
+
+\subsection{} Access to un-anonymised Worker-Identifiable Video shall be restricted to named Helix personnel under role-based access control, logged, and reviewed quarterly. Remote support sessions touching such data must originate from within the European Economic Area.
+
+\section{Audit and Verification}
+
+\subsection{} BauStein, or an independent auditor appointed by BauStein, may audit Helix's compliance with this Addendum upon thirty (30) days' written notice, not more than once per calendar year save where a personal-data breach is reasonably suspected.
+
+\subsection{} Helix shall provide, on request, anonymisation-latency reports and region-residency attestations demonstrating compliance with Section 4.
+
+\section{Breach Notification}
+
+\subsection{} Helix shall notify BauStein without undue delay, and in any event within twenty-four (24) hours, upon becoming aware of any failure to anonymise within the deadline, any egress of Worker-Identifiable Video outside the EU-Frankfurt region, or any other personal-data breach affecting SiteGuard CV data.
+
+\section{Term and Termination}
+
+\subsection{} This Addendum takes effect on the Effective Date stated above and remains in force for the duration of the SiteGuard CV engagement under the Master Agreement and the DPA. Upon termination, Helix shall, at BauStein's election, delete or return all Worker-Identifiable Video in accordance with Section 9 of the DPA.
+
+\section{Governing Law}
+
+\subsection{} This Addendum is governed by the laws of the Federal Republic of Germany. The courts of Frankfurt am Main shall have exclusive jurisdiction, subject to the dispute-resolution provisions of the Master Agreement.
+
+\vspace{2em}
+\hrule
+\vspace{1em}
+
+\textbf{IN WITNESS WHEREOF}, the Parties have caused this Addendum to be executed by their duly authorised representatives as of the Effective Date.
+
+\vspace{2.5em}
+
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{For Helix AI Consulting GmbH}\\[2.5em]
+\rule{0.85\textwidth}{0.4pt}\\
+Name: Dr.\ Annika Vossberg\\
+Title: Managing Director / Data Protection Lead\\
+Date: 18 February 2025
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{For BauStein GmbH}\\[2.5em]
+\rule{0.85\textwidth}{0.4pt}\\
+Name: Markus Heinlein\\
+Title: Chief Operating Officer\\
+Date: 18 February 2025
+\end{minipage}
+
+\vspace{3em}
+\hrule
+\vspace{0.5em}
+{\small Helix AI Consulting GmbH --- Internal Knowledge Base --- Contracts Repository. Prepared by Legal \& Compliance (T.\ Reher). Reviewed by DPO office, 14 February 2025.}
+
+\end{document}

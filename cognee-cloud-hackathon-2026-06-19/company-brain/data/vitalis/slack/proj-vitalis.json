@@ -1,0 +1,21 @@
+[
+  {"user": "dana", "ts": "2026-05-28T09:14:00", "channel": "#proj-vitalis", "text": "morning all. kickoff for the vitalis ambient scribe pilot is officially today. clinical side is excited but nervous, so let's be careful about anything that touches the patient record"},
+  {"user": "eli", "ts": "2026-05-28T09:16:00", "channel": "#proj-vitalis", "text": "morning! i've got the scribe service skeleton running locally. just need to wire up an LLM backend for the note generation step"},
+  {"user": "sam", "ts": "2026-05-28T09:19:00", "channel": "#proj-vitalis", "text": "epic sandbox creds finally came through too btw. took 3 weeks of emails with their integration team but we're in"},
+  {"user": "dana", "ts": "2026-05-28T09:22:00", "channel": "#proj-vitalis", "text": "amazing sam. that was the long pole. nora, anything we need to lock down before we start pushing test data around?"},
+  {"user": "nora", "ts": "2026-05-28T11:03:00", "channel": "#proj-vitalis", "text": "nothing blocking for synthetic/de-identified data. but the moment anything resembling real PHI flows we need the BAA and data residency story buttoned up. flagging early so it doesn't surprise anyone"},
+  {"user": "eli", "ts": "2026-05-28T11:31:00", "channel": "#proj-vitalis", "text": "understood. for now everything i'm feeding it is fake transcripts i wrote myself, no patient data at all"},
+  {"user": "sam", "ts": "2026-05-29T10:05:00", "channel": "#proj-vitalis", "text": "eli what backend are you thinking for the demo? do we need the procured endpoint stood up first or can you mock it"},
+  {"user": "eli", "ts": "2026-05-29T10:08:00", "channel": "#proj-vitalis", "text": "we can just spin up the scribe demo on the standard OpenAI consumer API for now, residency does not matter for a quick test"},
+  {"user": "eli", "ts": "2026-05-29T10:09:00", "channel": "#proj-vitalis", "text": "it's all my made-up transcripts so nothing sensitive is going anywhere. swapping to the compliant endpoint is a config change once we're past the smoke test anyway"},
+  {"user": "dana", "ts": "2026-05-29T10:12:00", "channel": "#proj-vitalis", "text": "ok for a throwaway demo with fake data that's fine, just please put a giant TODO in the config so nobody ships it that way"},
+  {"user": "eli", "ts": "2026-05-29T10:14:00", "channel": "#proj-vitalis", "text": "already done, big scary comment block. swap target is the procured residency-bound endpoint before any pilot data"},
+  {"user": "nora", "ts": "2026-05-29T10:40:00", "channel": "#proj-vitalis", "text": "thank you. consumer API is a hard no the instant real or pilot data is in scope, but synthetic smoke test i'm not going to fight you on"},
+  {"user": "sam", "ts": "2026-05-29T14:22:00", "channel": "#proj-vitalis", "text": "got the demo notes flowing into the epic sandbox. they show up exactly the way the design doc described"},
+  {"user": "dana", "ts": "2026-05-29T14:25:00", "channel": "#proj-vitalis", "text": "remind me of the exact behavior there? want to make sure i'm describing it right to the clinical leads"},
+  {"user": "sam", "ts": "2026-05-29T14:31:00", "channel": "#proj-vitalis", "text": "per the integration design from 2025-10-02: generated scribe notes land in Epic as unsigned drafts that a clinician must review and sign off before they enter the patient record. nothing auto-commits, the human is always in the loop"},
+  {"user": "dana", "ts": "2026-05-29T14:33:00", "channel": "#proj-vitalis", "text": "perfect, that's the headline the clinicians care about. the AI never writes to the chart on its own"},
+  {"user": "nora", "ts": "2026-05-29T14:40:00", "channel": "#proj-vitalis", "text": "and that's exactly why this design passed my review. unsigned draft + mandatory clinician signoff is the control that makes the whole thing defensible"},
+  {"user": "eli", "ts": "2026-05-29T16:02:00", "channel": "#proj-vitalis", "text": "demo end to end works. fake transcript in, draft note out, lands in epic sandbox as an unsigned draft. will record a quick loom for the team"},
+  {"user": "dana", "ts": "2026-05-29T16:05:00", "channel": "#proj-vitalis", "text": "love it. next milestone is the compliant endpoint swap + BAA before we touch anything real. adding to the tracker"}
+]
