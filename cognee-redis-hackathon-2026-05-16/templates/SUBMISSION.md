@@ -70,15 +70,14 @@ After:
 
 ## Architecture
 
-Short diagram or bullet list of components. The hackathon's core pattern is
-**Redis as session memory, distilled into Cognee's permanent knowledge graph**
-— show how your wiki uses that split.
+Short diagram or bullet list of components. Show how your wiki handles
+**session memory** and distills it into **Cognee's permanent knowledge graph**.
 
 ```text
 [ingest / agent turns]
         |
         v
-[ Redis  — session memory ]   <- hot, per-conversation
+[ Session memory ]            <- hot, per-conversation
         |
         | distillation (what gets promoted? how?)
         v
@@ -91,11 +90,11 @@ Short diagram or bullet list of components. The hackathon's core pattern is
 [ feedback -> improve ]
 ```
 
-### Redis-as-session-memory
+### Session Memory
 
-- What the agent writes into Redis (raw turns, intermediate observations, ...):
+- What the agent writes into session memory (raw turns, intermediate observations, ...):
 - How and when content is distilled into the graph:
-- What stays in Redis vs. what gets promoted:
+- What stays in session memory vs. what gets promoted:
 - How distillation quality improved between baseline and improved run:
 
 ## Agents / Skills (if any)
@@ -123,7 +122,6 @@ Environment variables required:
 
 ```text
 LLM_API_KEY
-REDIS_URL
 # add anything else your wiki needs
 ```
 
