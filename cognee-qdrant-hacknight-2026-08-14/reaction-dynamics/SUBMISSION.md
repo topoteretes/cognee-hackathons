@@ -89,7 +89,7 @@ messages against 211 for vscode — suggestive, not established.
 ### The finding that justifies the architecture
 
 **The seconds-scale cascade is not on GitHub.** Median cascade span across 36,779
-reactions is **23.4 hours**. We went looking for the six-second burst in the
+reactions is **32.7 hours** (26 cascades). We went looking for the six-second burst in the
 largest public corpus of timestamped reactions that exists, and it is not there.
 
 That shape exists only where a room is live, and only if you were listening.
