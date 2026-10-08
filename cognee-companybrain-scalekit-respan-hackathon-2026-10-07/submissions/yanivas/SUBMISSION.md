@@ -179,7 +179,7 @@ Judges without your SaaS accounts: run with `CONNECTOR_MODE=mock`, `MEMORY_PROVI
 
 ## Links
 
-* Repo: Implementation link intentionally omitted for submission; reproduction instructions are included above.
+* Repo: https://github.com/yanivas/scalekit-cognee-respanse
 * Respan traces / eval runs: Local eval artifact at `evals/results/latest.json`; Respan trace name defaults to `scalekit-cognee-respanse` when `RESPAN_API_KEY` is set.
 * Slides / writeup: Not committed yet.
 * Anything else: README reproduction guide in `README.md`.
