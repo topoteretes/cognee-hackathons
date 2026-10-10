@@ -2,16 +2,16 @@
 
 ## Team
 
-- Team name:
-- Participants:
-- Company Brain / project name:
+- Team name:trainer
+- Participants:vishwa
+- Company Brain / project name:trainer
 
 ## Company Brain Overview
 
 One-paragraph description of what your Company Brain does and how it self-improves.
 
-- Domain or data sources:
-- Primary use case:
+- Domain or data sources:product 
+- Primary use case: train a styling assistant to recommend better
 - What makes it stand out:
 
 ## The Three Operations
@@ -143,8 +143,8 @@ LLM_API_KEY
 
 ## Demo
 
-- Live demo link (Loom, YouTube, etc.) or local instructions:
-- 3-minute pitch outline:
+- Live demo link (Loom, YouTube, etc.) or local instructions: bespokes.lovable.app/demo 
+- 3-minute pitch outline: login as a demo user, chat and ask for "What should I wear to a conference" , the assistant responds, click on 'teach' button to teach the assistant by giving desired recommendations - product names from the store, assistant stores it in a file in memory and the next run shows better recommendations.
 
 ```text
 1. Problem / idea
@@ -157,6 +157,6 @@ LLM_API_KEY
 
 ## Links
 
-- Repo:
+- Repo:https://github.com/ProductCafe/cognee/tree/main
 - Slides / writeup:
-- Anything else:
+- Anything else: 
