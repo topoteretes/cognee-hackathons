@@ -1,0 +1,104 @@
+\documentclass[11pt]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{parskip}
+\usepackage{titlesec}
+
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.6em}{}
+
+\title{\vspace{-2.5em}\textbf{Business Associate Agreement \\ and Statement of Work}}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\vspace{-3em}
+
+\begin{center}
+\textbf{HELIX AI CONSULTING, LLC} \\
+\textit{and} \\
+\textbf{VITALIS HEALTH, INC.} \\[0.5em]
+\small Confidential --- Internal Knowledge Base Copy \\
+Document Ref: HX-BAA-SOW-2025-0218-VITALIS \\
+Effective Date: February 18, 2025
+\end{center}
+
+\vspace{1em}
+
+\section{Parties and Effective Date}
+
+This Business Associate Agreement and Statement of Work (collectively, this ``Agreement'') is entered into and made effective as of \textbf{February 18, 2025} (the ``Effective Date'') by and between:
+
+\textbf{Helix AI Consulting, LLC} (``Helix,'' ``Business Associate,'' or ``Consultant''), a limited liability company with principal offices at 400 Beacon Street, Suite 1200, Boston, Massachusetts 02115; and
+
+\textbf{Vitalis Health, Inc.} (``Vitalis,'' ``Covered Entity,'' or ``Client''), a healthcare provider organization with principal offices at 88 Harborview Plaza, Stamford, Connecticut 06901.
+
+Helix and Vitalis are each referred to as a ``Party'' and collectively as the ``Parties.'' This Agreement governs the engagement under which Helix will design, build, and validate the \textit{Scribe Assist} and \textit{AuthFlow} solutions on behalf of Vitalis, and establishes the obligations of Helix as a Business Associate under the Health Insurance Portability and Accountability Act of 1996 (``HIPAA''), as amended by the HITECH Act and implementing regulations at 45 C.F.R. Parts 160 and 164.
+
+\section{Background and Purpose}
+
+Vitalis has retained Helix to deliver two artificial-intelligence solutions intended to reduce administrative burden across Vitalis's ambulatory care network. \textit{Scribe Assist} provides ambient clinical-documentation support for providers; \textit{AuthFlow} automates prior-authorization intake and routing. Both solutions will, in the ordinary course of operation, create, receive, maintain, or transmit Protected Health Information (``PHI'') on behalf of Vitalis. Accordingly, the Parties enter into this combined Business Associate Agreement and Statement of Work to ensure that all such PHI is handled in accordance with HIPAA and the data-protection commitments set forth herein.
+
+\section{Definitions}
+
+Capitalized terms not otherwise defined in this Agreement shall have the meanings ascribed to them under HIPAA. ``PHI'' means Protected Health Information as defined at 45 C.F.R. \S 160.103, limited to that which is created, received, maintained, or transmitted by Helix on behalf of Vitalis. ``Tenant'' means the Vitalis HIPAA-covered cloud subscription environment provisioned under Vitalis's enterprise agreement.
+
+\section{Permitted Uses and Hosting Environment}
+
+\subsection{Deployment Environment}
+\textit{Scribe Assist} runs on the Microsoft Azure US-East region inside the Vitalis HIPAA-covered tenant, never on public consumer endpoints. Helix shall not deploy, replicate, mirror, or route any component of Scribe Assist to consumer-grade or non-covered infrastructure under any circumstances, and shall configure all service endpoints to operate exclusively within the designated covered tenant.
+
+\subsection{Data Residency and Encryption}
+All PHI processed by any Helix system for Vitalis must remain within US data-residency boundaries and be encrypted at rest under the signed Business Associate Agreement. Helix shall ensure that no PHI, in whole or in part, is stored, cached, backed up, or transmitted to any data center, region, or sub-processor located outside the United States, and that all PHI at rest is protected using encryption mechanisms that meet or exceed the standards referenced in guidance issued by the U.S. Department of Health and Human Services.
+
+\subsection{Minimum Necessary}
+Helix shall request, use, and disclose only the minimum necessary PHI to perform the services described herein, consistent with 45 C.F.R. \S 164.502(b).
+
+\section{Safeguards and Obligations of Business Associate}
+
+Helix shall implement administrative, physical, and technical safeguards that reasonably and appropriately protect the confidentiality, integrity, and availability of PHI, as required by the HIPAA Security Rule (45 C.F.R. Part 164, Subpart C). Helix shall: (a) not use or disclose PHI other than as permitted by this Agreement or as required by law; (b) report to Vitalis any use or disclosure of PHI not provided for by this Agreement, including any Breach of Unsecured PHI, without unreasonable delay and in no event later than five (5) business days after discovery; (c) ensure that any subcontractor that creates, receives, maintains, or transmits PHI on behalf of Helix agrees in writing to the same restrictions and conditions; and (d) make available PHI, and an accounting of disclosures, in the time and manner required by HIPAA.
+
+\section{Statement of Work --- AuthFlow Phase 1}
+
+\subsection{Scope}
+This Statement of Work governs Phase 1 of the AuthFlow engagement, comprising three workstreams: (i) \textbf{Discovery} --- requirements gathering, workflow mapping, and data-source assessment; (ii) \textbf{Build} --- development and integration of the AuthFlow intake and routing engine; and (iii) \textbf{Validation} --- testing, clinical user-acceptance review, and HIPAA security validation prior to production cutover.
+
+\subsection{Fees and Caps}
+The Vitalis signed SOW caps the AuthFlow Phase 1 engagement at \textbf{USD 480,000} across discovery, build, and validation. This amount represents the not-to-exceed ceiling for all professional services fees under Phase 1. Any work that would cause aggregate fees to exceed this cap requires a written change order executed by authorized representatives of both Parties prior to such work being performed.
+
+\subsection{Schedule}
+Phase 1 activities shall commence on the Effective Date, with discovery targeted for completion within six (6) weeks, build within fourteen (14) weeks thereafter, and validation within the subsequent four (4) weeks, subject to mutually agreed adjustments.
+
+\section{Term and Termination}
+
+This Agreement is effective as of the Effective Date and shall remain in effect until terminated by either Party upon thirty (30) days' written notice, or immediately upon material breach not cured within ten (10) days of notice. Upon termination, Helix shall return or destroy all PHI in accordance with 45 C.F.R. \S 164.504(e)(2)(ii)(J), retaining no copies except as required by law.
+
+\section{Governing Law}
+
+This Agreement shall be governed by and construed in accordance with the laws of the State of Connecticut, without regard to its conflict-of-laws principles, and by applicable federal law including HIPAA.
+
+\vspace{2em}
+
+\noindent\textbf{IN WITNESS WHEREOF}, the Parties have caused this Agreement to be executed by their duly authorized representatives as of the Effective Date.
+
+\vspace{2em}
+
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{HELIX AI CONSULTING, LLC} \\[2.5em]
+\rule{0.9\textwidth}{0.4pt} \\
+Name: Marcus T. Halloran \\
+Title: Managing Partner, Health \& Life Sciences \\
+Date: \rule{3cm}{0.4pt}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{VITALIS HEALTH, INC.} \\[2.5em]
+\rule{0.9\textwidth}{0.4pt} \\
+Name: Dr. Priya Ramanathan \\
+Title: Chief Information Officer \\
+Date: \rule{3cm}{0.4pt}
+\end{minipage}
+
+\end{document}

@@ -1,0 +1,22 @@
+Slack export — #proj-baustein
+BauStein GmbH engagement | Helix AI Consulting
+Participants: alice (ML lead), tomas (PM), priya (data eng), marco (site liaison)
+
+[2026-02-03 09:14] tomas (#proj-baustein): morning all — kicking off the retrieval architecture thread. after the spike last week we have a decision to make on the vector store
+[2026-02-03 09:21] priya (#proj-baustein): i benchmarked pgvector vs weaviate vs pinecone on the RFI corpus. pinecone won on recall@10 and latency, and ops overhead is basically zero for us
+[2026-02-03 09:33] alice (#proj-baustein): agreed. let's make it official — the platform standardized on Pinecone for all retrieval workloads on the BauStein engagement. no more one-off stores per service
+[2026-02-03 09:35] tomas (#proj-baustein): great, i'll note it in the arch decision log. priya can you own the index naming convention doc?
+[2026-02-03 09:36] priya (#proj-baustein): yep on it 👍
+[2026-04-22 11:02] alice (#proj-baustein): Q1 accuracy review is done and it's pretty clear cut. RFI Copilot migrated to Claude Sonnet 4.5 as the primary drafting model after the Q1 2026 accuracy review, GPT-4o kept as fallback
+[2026-04-22 11:08] tomas (#proj-baustein): nice, the draft quality jump in the eval set was hard to argue with. do we need to update the client-facing model card?
+[2026-04-22 11:11] alice (#proj-baustein): yeah i'll redline it. fallback routing stays the same, just swapping the primary
+[2026-04-22 11:14] priya (#proj-baustein): cost per draft actually dropped too which marco will be happy about
+[2026-04-22 13:40] marco (#proj-baustein): i'm always happy about cost going down lol. site team has been asking when the helmet-cam pilot lands btw
+[2026-04-22 13:45] tomas (#proj-baustein): end of may target for the demo. priya is wiring the ingest
+[2026-05-30 14:02] marco (#proj-baustein): demo's looking sharp, walked the foreman through it this morning and he loved seeing the live feed
+[2026-05-30 14:09] priya (#proj-baustein): quick note — we are piping the raw helmet-cam clips straight to the US-east bucket so the demo loads faster, faces still visible for now
+[2026-05-30 14:12] alice (#proj-baustein): ok noted for the demo. let's circle back on blurring + region before anything goes wider than the pilot
+[2026-05-30 14:15] tomas (#proj-baustein): adding it to the risk log so we don't forget. marco can you keep the clip set to just the pilot crew for now?
+[2026-05-30 14:18] marco (#proj-baustein): yep just the three guys who signed up. nobody else in frame ideally
+[2026-05-30 14:22] priya (#proj-baustein): cool. once the demo's signed off i'll move ingest to eu-central and add the blur step
+[2026-05-30 14:25] alice (#proj-baustein): perfect. thanks team, this is shaping up well 🙌

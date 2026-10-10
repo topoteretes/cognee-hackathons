@@ -1,0 +1,20 @@
+[
+  {"user":"tomas","ts":"2026-02-03T09:14:00","channel":"#proj-baustein","text":"morning all — kicking off the retrieval architecture thread. after the spike last week we have a decision to make on the vector store"},
+  {"user":"priya","ts":"2026-02-03T09:21:00","channel":"#proj-baustein","text":"i benchmarked pgvector vs weaviate vs pinecone on the RFI corpus. pinecone won on recall@10 and latency, and ops overhead is basically zero for us"},
+  {"user":"alice","ts":"2026-02-03T09:33:00","channel":"#proj-baustein","text":"agreed. let's make it official — the platform standardized on Pinecone for all retrieval workloads on the BauStein engagement. no more one-off stores per service"},
+  {"user":"tomas","ts":"2026-02-03T09:35:00","channel":"#proj-baustein","text":"great, i'll note it in the arch decision log. priya can you own the index naming convention doc?"},
+  {"user":"priya","ts":"2026-02-03T09:36:00","channel":"#proj-baustein","text":"yep on it 👍"},
+  {"user":"alice","ts":"2026-04-22T11:02:00","channel":"#proj-baustein","text":"Q1 accuracy review is done and it's pretty clear cut. RFI Copilot migrated to Claude Sonnet 4.5 as the primary drafting model after the Q1 2026 accuracy review, GPT-4o kept as fallback"},
+  {"user":"tomas","ts":"2026-04-22T11:08:00","channel":"#proj-baustein","text":"nice, the draft quality jump in the eval set was hard to argue with. do we need to update the client-facing model card?"},
+  {"user":"alice","ts":"2026-04-22T11:11:00","channel":"#proj-baustein","text":"yeah i'll redline it. fallback routing stays the same, just swapping the primary"},
+  {"user":"priya","ts":"2026-04-22T11:14:00","channel":"#proj-baustein","text":"cost per draft actually dropped too which marco will be happy about"},
+  {"user":"marco","ts":"2026-04-22T13:40:00","channel":"#proj-baustein","text":"i'm always happy about cost going down lol. site team has been asking when the helmet-cam pilot lands btw"},
+  {"user":"tomas","ts":"2026-04-22T13:45:00","channel":"#proj-baustein","text":"end of may target for the demo. priya is wiring the ingest"},
+  {"user":"marco","ts":"2026-05-30T14:02:00","channel":"#proj-baustein","text":"demo's looking sharp, walked the foreman through it this morning and he loved seeing the live feed"},
+  {"user":"priya","ts":"2026-05-30T14:09:00","channel":"#proj-baustein","text":"quick note — we are piping the raw helmet-cam clips straight to the US-east bucket so the demo loads faster, faces still visible for now"},
+  {"user":"alice","ts":"2026-05-30T14:12:00","channel":"#proj-baustein","text":"ok noted for the demo. let's circle back on blurring + region before anything goes wider than the pilot"},
+  {"user":"tomas","ts":"2026-05-30T14:15:00","channel":"#proj-baustein","text":"adding it to the risk log so we don't forget. marco can you keep the clip set to just the pilot crew for now?"},
+  {"user":"marco","ts":"2026-05-30T14:18:00","channel":"#proj-baustein","text":"yep just the three guys who signed up. nobody else in frame ideally"},
+  {"user":"priya","ts":"2026-05-30T14:22:00","channel":"#proj-baustein","text":"cool. once the demo's signed off i'll move ingest to eu-central and add the blur step"},
+  {"user":"alice","ts":"2026-05-30T14:25:00","channel":"#proj-baustein","text":"perfect. thanks team, this is shaping up well 🙌"}
+]

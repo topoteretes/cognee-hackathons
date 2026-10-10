@@ -1,0 +1,24 @@
+Slack export — #proj-vitalis
+Workspace: Helix AI Consulting
+Client engagement: Vitalis Health — Ambient Clinical Scribe Pilot
+Participants: eli (eng), dana (clinical PM), sam (integration eng), nora (compliance)
+
+[2026-05-28 09:14] dana (#proj-vitalis): morning all. kickoff for the vitalis ambient scribe pilot is officially today. clinical side is excited but nervous, so let's be careful about anything that touches the patient record
+[2026-05-28 09:16] eli (#proj-vitalis): morning! i've got the scribe service skeleton running locally. just need to wire up an LLM backend for the note generation step
+[2026-05-28 09:19] sam (#proj-vitalis): epic sandbox creds finally came through too btw. took 3 weeks of emails with their integration team but we're in
+[2026-05-28 09:22] dana (#proj-vitalis): amazing sam. that was the long pole. nora, anything we need to lock down before we start pushing test data around?
+[2026-05-28 11:03] nora (#proj-vitalis): nothing blocking for synthetic/de-identified data. but the moment anything resembling real PHI flows we need the BAA and data residency story buttoned up. flagging early so it doesn't surprise anyone
+[2026-05-28 11:31] eli (#proj-vitalis): understood. for now everything i'm feeding it is fake transcripts i wrote myself, no patient data at all
+[2026-05-29 10:05] sam (#proj-vitalis): eli what backend are you thinking for the demo? do we need the procured endpoint stood up first or can you mock it
+[2026-05-29 10:08] eli (#proj-vitalis): we can just spin up the scribe demo on the standard OpenAI consumer API for now, residency does not matter for a quick test
+[2026-05-29 10:09] eli (#proj-vitalis): it's all my made-up transcripts so nothing sensitive is going anywhere. swapping to the compliant endpoint is a config change once we're past the smoke test anyway
+[2026-05-29 10:12] dana (#proj-vitalis): ok for a throwaway demo with fake data that's fine, just please put a giant TODO in the config so nobody ships it that way
+[2026-05-29 10:14] eli (#proj-vitalis): already done, big scary comment block. swap target is the procured residency-bound endpoint before any pilot data
+[2026-05-29 10:40] nora (#proj-vitalis): thank you. consumer API is a hard no the instant real or pilot data is in scope, but synthetic smoke test i'm not going to fight you on
+[2026-05-29 14:22] sam (#proj-vitalis): got the demo notes flowing into the epic sandbox. they show up exactly the way the design doc described
+[2026-05-29 14:25] dana (#proj-vitalis): remind me of the exact behavior there? want to make sure i'm describing it right to the clinical leads
+[2026-05-29 14:31] sam (#proj-vitalis): per the integration design from 2025-10-02: generated scribe notes land in Epic as unsigned drafts that a clinician must review and sign off before they enter the patient record. nothing auto-commits, the human is always in the loop
+[2026-05-29 14:33] dana (#proj-vitalis): perfect, that's the headline the clinicians care about. the AI never writes to the chart on its own
+[2026-05-29 14:40] nora (#proj-vitalis): and that's exactly why this design passed my review. unsigned draft + mandatory clinician signoff is the control that makes the whole thing defensible
+[2026-05-29 16:02] eli (#proj-vitalis): demo end to end works. fake transcript in, draft note out, lands in epic sandbox as an unsigned draft. will record a quick loom for the team
+[2026-05-29 16:05] dana (#proj-vitalis): love it. next milestone is the compliant endpoint swap + BAA before we touch anything real. adding to the tracker

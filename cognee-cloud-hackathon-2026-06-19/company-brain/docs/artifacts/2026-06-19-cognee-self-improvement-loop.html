@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cognee Self-Improvement Loop</title>
+  <style>
+:root {
+  --bg: #fbf9f4;
+  --text: #1a1a1a;
+  --text-muted: #3a3a3a;
+  --text-faint: #8a8276;
+  --rule: #e0d9c8;
+  --accent: #b3541e;
+  --panel: #ffffff;
+  --code-bg: #f3efe6;
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+html { color-scheme: light; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--serif); font-size: 16px; line-height: 1.65;
+  max-width: 720px; margin: 0 auto; padding: 48px 24px;
+}
+h1, h2, h3 { font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
+h1 { font-size: 32px; } h2 { font-size: 22px; } h3 { font-size: 17px; }
+.kicker { font-family: var(--sans); font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--accent); margin-bottom: 8px; }
+a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 24px 0; }
+blockquote, .pullquote { border-left: 3px solid var(--accent); padding-left: 16px;
+  font-style: italic; color: var(--text-muted); margin: 20px 0; }
+code, pre { font-family: var(--mono); background: var(--code-bg); border-radius: 3px; }
+code { padding: 1px 6px; font-size: 0.9em; }
+pre { padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+button, .btn { background: var(--text); color: var(--bg); border: 0;
+  padding: 10px 18px; border-radius: 3px; font: inherit; font-size: 14px; cursor: pointer; }
+button:hover { background: var(--accent); }
+.panel, .card { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 3px; padding: 16px; margin: 14px 0; }
+.label { font-family: var(--sans); font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-faint); }
+body.wide { max-width: 1100px; }
+
+body.wide { padding-top: 36px; }
+.lede { max-width: 760px; color: var(--text-muted); }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 12px; }
+.controls button { font-family: var(--sans); }
+.controls button[aria-pressed="true"] { background: var(--accent); }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: stretch; margin-top: 18px; }
+.compare-panel { background: var(--panel); border: 1px solid var(--rule); padding: 18px; display: flex; flex-direction: column; }
+.compare-panel h2 { margin: 0 0 8px; }
+.compare-panel .big { font-family: var(--sans); font-size: 19px; line-height: 1.35; margin: 0 0 14px; }
+.compare-panel ul { padding-left: 18px; margin: 8px 0 0; }
+.compare-panel li { margin: 7px 0; }
+.flow-strip { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 8px; margin: 14px 0; font-family: var(--sans); font-size: 13px; }
+.flow-box { border: 1px solid var(--rule); background: #fff; padding: 10px; min-height: 42px; display: flex; align-items: center; justify-content: center; text-align: center; }
+.flow-arrow { color: var(--accent); font-size: 20px; line-height: 1; }
+.result { border-left: 3px solid var(--accent); padding-left: 12px; margin-top: auto; color: var(--text-muted); }
+.grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(260px, .7fr); gap: 18px; align-items: start; margin-top: 18px; }
+.diagram { background: var(--panel); border: 1px solid var(--rule); padding: 10px; overflow-x: auto; }
+svg { display: block; width: 100%; min-width: 720px; height: auto; }
+.node rect { fill: #fff; stroke: var(--text); stroke-width: 1.2; rx: 3; }
+.node.active rect { stroke: var(--accent); stroke-width: 2.2; }
+.node text { font-family: var(--sans); fill: var(--text); font-size: 13px; }
+.node .small { fill: var(--text-muted); font-size: 11px; }
+.arrow { stroke: var(--text); stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
+.arrow.accent { stroke: var(--accent); stroke-width: 2; }
+.note { font-family: var(--sans); font-size: 12px; fill: var(--text-muted); }
+.side h2 { margin-top: 0; }
+.steps { padding-left: 20px; }
+.steps li { margin: 8px 0; }
+.distinction { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+.distinction .card { margin: 0; }
+.pill { display: inline-block; border: 1px solid var(--rule); padding: 2px 8px; border-radius: 3px; font-family: var(--sans); font-size: 12px; margin-right: 5px; }
+.output { white-space: pre-wrap; min-height: 42px; color: var(--text-muted); font-family: var(--sans); font-size: 13px; }
+@media (max-width: 820px) {
+  .grid, .distinction, .split { grid-template-columns: 1fr; }
+  .flow-strip { grid-template-columns: 1fr; }
+  .flow-arrow { transform: rotate(90deg); justify-self: center; }
+  svg { min-width: 680px; }
+}
+  </style>
+</head>
+<body class="wide">
+  <div class="kicker">2026-06-19 · Diagram</div>
+  <h1>Two Different Kinds of “Self-Improvement”</h1>
+  <p class="lede">
+    Presentation hook: <strong>Cognee improves the worker.</strong> Our lint loop improves the <strong>trusted company memory</strong>. Same word, different target.
+  </p>
+
+  <div class="split" aria-label="Two improvement loops compared">
+    <section class="compare-panel">
+      <div class="label">Cognee native skill loop</div>
+      <h2>Improves the worker</h2>
+      <p class="big">“Answer this kind of question better next time.”</p>
+      <div class="flow-strip" aria-label="Cognee skill loop flow">
+        <div class="flow-box">Skill instructions</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">Feedback proposal</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">Improved skill behavior</div>
+      </div>
+      <ul>
+        <li>Target: QA skill, rubric, answer behavior.</li>
+        <li>API shape: <code>content_type="skills"</code>, <code>skill_improvement</code>, <code>improve()</code>.</li>
+        <li>Does not, by itself, prove that bad memory was safely removed.</li>
+      </ul>
+      <p class="result">Demo line: Cognee can adapt the way it answers.</p>
+    </section>
+
+    <section class="compare-panel">
+      <div class="label">Our Company Brain lint loop</div>
+      <h2>Improves the memory</h2>
+      <p class="big">“Which fact is allowed to be authoritative?”</p>
+      <div class="flow-strip" aria-label="Company memory lint flow">
+        <div class="flow-box">Messy facts</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">Discriminator + drift debt</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">Clean memory + ledger</div>
+      </div>
+      <ul>
+        <li>Target: contradictory, stale, duplicate, unsafe, or unsourced facts.</li>
+        <li>Modules: drift debter, discriminator/router, imposer, ledger.</li>
+        <li>Every override, hold, merge, or quarantine writes a receipt.</li>
+      </ul>
+      <p class="result">Demo line: wrong answer → lint → right answer, with proof.</p>
+    </section>
+  </div>
+
+  <div class="controls" aria-label="Diagram mode">
+    <button id="nativeBtn" aria-pressed="true">Cognee native skill loop</button>
+    <button id="driftBtn" aria-pressed="false">Our memory lint loop</button>
+    <button id="copyBtn">Copy JSON</button>
+  </div>
+
+  <div class="grid">
+    <div class="diagram" aria-label="Self-improvement flow diagram">
+      <svg viewBox="0 0 920 510" role="img" aria-labelledby="title desc">
+        <title id="title">Cognee self-improvement loop diagram</title>
+        <desc id="desc">Flow showing skill registration, query, proposal, improve application, and answer behavior.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+            <path d="M0,0 L10,4 L0,8 Z" fill="#1a1a1a"></path>
+          </marker>
+        </defs>
+
+        <g id="nativeLayer">
+          <g class="node active" transform="translate(35 55)">
+            <rect width="160" height="82"></rect>
+            <text x="16" y="28">1. Register skill</text>
+            <text class="small" x="16" y="52">remember(...)</text>
+            <text class="small" x="16" y="68">content_type="skills"</text>
+          </g>
+          <path class="arrow accent" d="M198 96 C235 96 252 96 286 96"></path>
+          <g class="node" transform="translate(290 55)">
+            <rect width="170" height="82"></rect>
+            <text x="16" y="28">2. Use skill</text>
+            <text class="small" x="16" y="52">search/recall</text>
+            <text class="small" x="16" y="68">skills=["qa-answerer"]</text>
+          </g>
+          <path class="arrow accent" d="M464 96 C502 96 519 96 553 96"></path>
+          <g class="node" transform="translate(557 55)">
+            <rect width="165" height="82"></rect>
+            <text x="16" y="28">3. Capture feedback</text>
+            <text class="small" x="16" y="52">remember(...)</text>
+            <text class="small" x="16" y="68">skill_improvement</text>
+          </g>
+          <path class="arrow accent" d="M640 140 C640 185 512 198 454 224"></path>
+          <g class="node active" transform="translate(290 218)">
+            <rect width="178" height="88"></rect>
+            <text x="16" y="28">4. Apply improve</text>
+            <text class="small" x="16" y="52">improve(dataset=...)</text>
+            <text class="small" x="16" y="70">updates skill behavior</text>
+          </g>
+          <path class="arrow accent" d="M288 260 C230 248 196 216 132 144"></path>
+          <text class="note" x="532" y="238">The graph facts are not the main thing being changed here.</text>
+          <text class="note" x="532" y="258">The target is the skill/prompt/rubric behavior used at query time.</text>
+        </g>
+
+        <g id="driftLayer" style="display:none">
+          <g class="node active" transform="translate(35 55)">
+            <rect width="160" height="82"></rect>
+            <text x="16" y="28">1. Ingest docs</text>
+            <text class="small" x="16" y="52">PDF, docx, Slack</text>
+            <text class="small" x="16" y="68">dataset per client</text>
+          </g>
+          <path class="arrow accent" d="M198 96 C235 96 252 96 286 96"></path>
+          <g class="node" transform="translate(290 55)">
+            <rect width="170" height="82"></rect>
+            <text x="16" y="28">2. Detect drift</text>
+            <text class="small" x="16" y="52">contradiction</text>
+            <text class="small" x="16" y="68">stale, duplicate, no-source</text>
+          </g>
+          <path class="arrow accent" d="M464 96 C502 96 519 96 553 96"></path>
+          <g class="node active" transform="translate(557 55)">
+            <rect width="165" height="82"></rect>
+            <text x="16" y="28">3. Route decision</text>
+            <text class="small" x="16" y="52">heuristic or judge</text>
+            <text class="small" x="16" y="68">park if unsure</text>
+          </g>
+          <path class="arrow accent" d="M640 140 C640 186 512 198 454 224"></path>
+          <g class="node" transform="translate(290 218)">
+            <rect width="178" height="88"></rect>
+            <text x="16" y="28">4. Impose result</text>
+            <text class="small" x="16" y="52">remember winners</text>
+            <text class="small" x="16" y="70">demote losers</text>
+          </g>
+          <path class="arrow accent" d="M288 260 C230 248 196 216 132 144"></path>
+          <g class="node active" transform="translate(557 218)">
+            <rect width="165" height="88"></rect>
+            <text x="16" y="28">5. Write receipt</text>
+            <text class="small" x="16" y="52">OVERRIDE / HELD</text>
+            <text class="small" x="16" y="70">MERGE / QUARANTINE</text>
+          </g>
+          <path class="arrow" d="M472 260 C506 260 522 260 553 260"></path>
+          <text class="note" x="520" y="368">This loop changes what the Company Brain treats as authoritative.</text>
+          <text class="note" x="520" y="388">It is the before/after demo: wrong answer → lint → right answer.</text>
+        </g>
+
+        <line x1="35" y1="420" x2="885" y2="420" stroke="#e0d9c8"></line>
+        <text class="note" x="35" y="452">Say it simply: Cognee improves the worker; our system improves the trusted memory.</text>
+        <text class="note" x="35" y="476">The first changes answer behavior. The second changes authority, debt, and receipts.</text>
+      </svg>
+    </div>
+
+    <aside class="side panel">
+      <h2 id="sideTitle">Presentation wording</h2>
+      <div id="sideBody">
+        <p><strong>Cognee native loop:</strong> the worker learns how to answer better. It updates skill behavior, not the truth status of business facts.</p>
+        <ol class="steps">
+          <li>Register a named skill.</li>
+          <li>Run it on a question.</li>
+          <li>Feed back an improvement proposal.</li>
+          <li>Apply <code>improve()</code>.</li>
+        </ol>
+      </div>
+    </aside>
+  </div>
+
+  <div class="distinction">
+    <div class="card">
+      <div class="label">Native Cognee loop</div>
+      <p><span class="pill">Updates skill behavior</span><span class="pill">Rubric/prompt-like</span></p>
+      <p>Use this for the Cognee rubric: the assistant can improve a reusable skill.</p>
+    </div>
+    <div class="card">
+      <div class="label">Our drift lint loop</div>
+      <p><span class="pill">Updates memory authority</span><span class="pill">Receipts required</span></p>
+      <p>Use this for the main story: the company brain resolves drift and leaves an audit trail.</p>
+    </div>
+  </div>
+
+  <pre id="jsonOut" class="output" aria-live="polite"></pre>
+
+  <script>
+    const state = {
+      mode: "native",
+      nativeUpdates: "worker behavior: instructions/rubric/policy for a named skill",
+      driftUpdates: "trusted memory: winners, demotions, quarantines, ledger receipts",
+      demoLine: "wrong answer -> lint/improve -> right answer + receipt"
+    };
+
+    const nativeBtn = document.getElementById("nativeBtn");
+    const driftBtn = document.getElementById("driftBtn");
+    const nativeLayer = document.getElementById("nativeLayer");
+    const driftLayer = document.getElementById("driftLayer");
+    const sideTitle = document.getElementById("sideTitle");
+    const sideBody = document.getElementById("sideBody");
+    const jsonOut = document.getElementById("jsonOut");
+
+    function setMode(mode) {
+      state.mode = mode;
+      nativeBtn.setAttribute("aria-pressed", String(mode === "native"));
+      driftBtn.setAttribute("aria-pressed", String(mode === "drift"));
+      nativeLayer.style.display = mode === "native" ? "" : "none";
+      driftLayer.style.display = mode === "drift" ? "" : "none";
+      if (mode === "native") {
+        sideTitle.textContent = "Presentation wording";
+        sideBody.innerHTML = `
+          <p><strong>Cognee native loop:</strong> the worker learns how to answer better. It updates skill behavior, not the truth status of business facts.</p>
+          <ol class="steps">
+            <li>Register a named skill.</li>
+            <li>Run it on a question.</li>
+            <li>Feed back an improvement proposal.</li>
+            <li>Apply <code>improve()</code>.</li>
+          </ol>`;
+      } else {
+        sideTitle.textContent = "Presentation wording";
+        sideBody.innerHTML = `
+          <p><strong>Our lint loop:</strong> the memory gets cleaned. It decides which facts are authoritative and records every change in the ledger.</p>
+          <ol class="steps">
+            <li>Drift debter finds open memory debt.</li>
+            <li>Discriminator chooses hold, override, merge, retire, or park.</li>
+            <li>Imposer updates what the graph should favor.</li>
+            <li>Ledger writes the receipt.</li>
+          </ol>`;
+      }
+      jsonOut.textContent = "";
+    }
+
+    nativeBtn.addEventListener("click", () => setMode("native"));
+    driftBtn.addEventListener("click", () => setMode("drift"));
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      const text = JSON.stringify(state, null, 2);
+      jsonOut.textContent = text;
+      try {
+        await navigator.clipboard.writeText(text);
+        jsonOut.textContent = text + "\n\nCopied.";
+      } catch {
+        jsonOut.textContent = text + "\n\nCopy manually from here.";
+      }
+    });
+  </script>
+</body>
+</html>
