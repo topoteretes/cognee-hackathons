@@ -92,15 +92,15 @@ model would likely score higher on the underlying fix.
 
 ## Memory report
 
-Produced by the `memoff-memory-report` skill, which only produces real output during the
-live event (it builds the report from tool output as the day runs — nothing to backfill
-ahead of time). At the event: run
-`skills/memoff-memory-report/install.sh --event "Mem Off <date>" --team sthanuverse`
-and this section gets filled at wrap-up.
+Produced by the `memoff-memory-report` skill. Current content is from **pre-event testing**
+(the skill was already run once, against real local harness runs, to validate the whole
+pipeline end to end) — not official event results. At the live event, re-running
+`skills/memoff-memory-report/install.sh --event "Mem Off <date>" --team sthanuverse` and
+the skill's wrap-up updates both files in place with real event-day data.
 
-- `report/memoff-report.md` and `report/memoff-report.json` present: not yet — pending the live event
-- Runs recorded (count, of which smoke): pending the live event
-- The one number you would show a judge, and the run folder it comes from: pending the live event
+- `report/memoff-report.md` and `report/memoff-report.json` present: yes (pre-event testing data; will be refreshed at the live event)
+- Runs recorded (count, of which smoke): 3 (1 smoke, 2 real model runs — a 2-issue run and the full 8-issue chain)
+- The one number you would show a judge, and the run folder it comes from: recall fired correctly (non-empty, correctly dataset-scoped) on every issue from issue 2 onward in the full 8-issue run (`/tmp/memoff-full-sthanuverse`), confirmed via regenerated receipts
 
 ## Reproduction
 
