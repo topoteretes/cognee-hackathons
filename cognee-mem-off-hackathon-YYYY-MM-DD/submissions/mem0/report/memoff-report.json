@@ -1,0 +1,50 @@
+{
+  "type": "memoff-memory-report",
+  "event": "Mem Off (date TBD)",
+  "team": "mem0",
+  "system": "mem0@0724291bd864cf807e88ee8981c8226644e8fb42",
+  "agent": "claude-code 2.1.161",
+  "runs": [
+    {
+      "kind": "live-pilot",
+      "issues": [1],
+      "all_pass": true,
+      "private_graders_present": false,
+      "turns": 18,
+      "agent_cost_usd": 0.4758687,
+      "memory_cost_usd": null,
+      "injected_chars": 0
+    },
+    {
+      "kind": "live-chained-run",
+      "issues": [1, 2, 3, 4, 5, 6, 7, 8],
+      "all_pass": false,
+      "visible_issues_passed": 4,
+      "private_graders_present": false,
+      "turns": 163,
+      "agent_cost_usd": 3.7311699,
+      "memory_cost_usd": null,
+      "total_cost_usd": null,
+      "injected_chars": 8447,
+      "evidence_events": 172,
+      "semantic_flushes": 8,
+      "semantic_flushes_succeeded": 8,
+      "memories_written": 24,
+      "retrieval_items": 33,
+      "sessions_with_retrieval": 7,
+      "issue_results": [
+        {"issue": 1, "passed": true, "retrieved": 0, "recall_ms": 421.689375, "injected_chars": 0},
+        {"issue": 2, "passed": false, "retrieved": 3, "recall_ms": 498.299625, "injected_chars": 757},
+        {"issue": 3, "passed": false, "retrieved": 5, "recall_ms": 523.037542, "injected_chars": 1126},
+        {"issue": 4, "passed": false, "retrieved": 5, "recall_ms": 505.117917, "injected_chars": 1152},
+        {"issue": 5, "passed": false, "retrieved": 5, "recall_ms": 457.382, "injected_chars": 1433},
+        {"issue": 6, "passed": true, "retrieved": 5, "recall_ms": 514.410625, "injected_chars": 1478},
+        {"issue": 7, "passed": true, "retrieved": 5, "recall_ms": 498.781167, "injected_chars": 1295},
+        {"issue": 8, "passed": true, "retrieved": 5, "recall_ms": 629.378334, "injected_chars": 1206}
+      ],
+      "known_evaluation_issue": "A 2024 date-dependent fixture produces one extra visible failure in 2026 after the intended Issue 3 due-date fix."
+    }
+  ],
+  "scorecard": null,
+  "status": "full eight-issue live run complete; visible gate 4/8; private graders unavailable"
+}

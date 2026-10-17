@@ -1,0 +1,10 @@
+{
+  "name": "mem0-memoff",
+  "version": "0.1.0",
+  "description": "Mem0's Claude Code memory plugin adapted to the Mem Off entrant contract.",
+  "author": {"name": "Mem0 adapter entrant"},
+  "homepage": "https://github.com/mem0ai/mem0",
+  "repository": "https://github.com/mem0ai/mem0",
+  "license": "Apache-2.0",
+  "keywords": ["memory", "mem0", "memoff", "coding-agents"]
+}

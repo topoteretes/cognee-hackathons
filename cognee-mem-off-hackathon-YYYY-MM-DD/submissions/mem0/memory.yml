@@ -1,0 +1,30 @@
+name: mem0
+display_name: Mem0 for Claude Code (Mem Off adapter)
+version: "mem0@0724291bd864cf807e88ee8981c8226644e8fb42"
+repository: https://github.com/mem0ai/mem0
+agent: claude-code
+hooks: [SessionStart, UserPromptSubmit, PostToolUse, Stop, SessionEnd, PreCompact]
+plugin_dirs:
+  - plugin
+install: install.sh
+wipe: wipe.sh
+wipe_check: wipe_check.sh
+wait: wait.sh
+preindex: false
+receipt: receipt.sh
+usage: usage.sh
+storage: "Mem0 Platform plus ~/.mem0-memoff/<MEMOFF_MEMORY_STORE>/evidence.sqlite3"
+network:
+  - "https://github.com/mem0ai/mem0 — pinned plugin source during install"
+  - "https://api.mem0.ai — memory extraction, storage, and retrieval"
+llm:
+  provider: mem0-platform
+  model: "Mem0 Platform managed extraction model (not exposed per request)"
+  embedding_model: "Mem0 Platform managed embedding model (not exposed per request)"
+notes: >
+  The adapter maps both MEM0_PROJECT_ID and MEM0_USER_ID to MEMOFF_MEMORY_STORE,
+  so the eight issues in one repeat share memory while repeats remain isolated.
+  It preserves Mem0's default coding-memory capture and first-prompt retrieval.
+  Every automatic context injection is copied verbatim to MEMOFF_INJECTED_DIR.
+  Mem0 Platform does not expose per-event model or embedding token usage, so
+  usage.sh reports the server row as unmeasured instead of treating it as zero.
