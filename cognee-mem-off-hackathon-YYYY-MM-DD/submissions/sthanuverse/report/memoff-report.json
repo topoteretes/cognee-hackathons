@@ -1,0 +1,103 @@
+{
+  "type": "memoff-memory-report",
+  "event": "Mem Off (date TBD)",
+  "team": "sthanuverse",
+  "system": "cognee-diffmem v1.0.0",
+  "agent": "claude-code",
+  "cognee_plugin": "1.7.1 (installed, not our entrant)",
+  "first_green_run": "2026-10-17T13:28 (2-issue real run, all_pass=true)",
+  "runs": 3,
+  "smoke_runs": 1,
+  "summary": "Three pre-event runs against the real memoff harness: one smoke (orchestration only, 2 issues), one small real run (2 issues, claude-haiku-5-5, all passed), one full real run (8 issues, same model). Recall fired correctly on every issue from issue 2 onward in the full run (1 item, 8000 chars each), confirmed via a fixed receipt.sh. Clearest controlled helped case: a standalone selftest where the agent answered a question correctly using only recalled context, never stated in the prompt. Clearest gap: issues 2-8 of the full run did not meet their exact visible-failure targets -- a claude-haiku-5-5 correctness limit, not a memory failure; recall itself succeeded on all of them. The one number for a judge: 8/8 issues got a non-empty, correctly-scoped recall from issue 2 onward, at $2.29 total measured agent cost across the full 8-issue chain.",
+  "runs_table": [
+    {
+      "time": "2026-10-17T13:35",
+      "command": "memoff run --smoke --arms submissions/sthanuverse --only 1 2",
+      "out_dir": "/tmp/memoff-smoke-sthanuverse",
+      "arms": ["no_memory", "cognee-diffmem"],
+      "issues": [1, 2],
+      "repeats": 1,
+      "all_pass": null,
+      "median_cost": null,
+      "turns": null,
+      "injected_chars": null,
+      "smoke": true
+    },
+    {
+      "time": "2026-10-17T13:28",
+      "command": "memoff run --arms submissions/sthanuverse --no-control --model claude-haiku-5-5 --only 1 2",
+      "out_dir": "/tmp/memoff-fixcheck (cleaned up after use)",
+      "arms": ["cognee-diffmem"],
+      "issues": [1, 2],
+      "repeats": 1,
+      "all_pass": true,
+      "median_cost": null,
+      "turns": 71,
+      "injected_chars": null,
+      "smoke": false,
+      "note": "issue-02 recall confirmed: items_recalled=1, chars_injected=8000"
+    },
+    {
+      "time": "2026-10-17T13:38-13:59",
+      "command": "memoff run --arms submissions/sthanuverse --no-control --model claude-haiku-5-5",
+      "out_dir": "/tmp/memoff-full-sthanuverse",
+      "arms": ["cognee-diffmem"],
+      "issues": [1, 2, 3, 4, 5, 6, 7, 8],
+      "repeats": 1,
+      "all_pass": false,
+      "median_cost": {"agent_cost_usd": 2.2858414650000003, "memory_cost_usd": 0, "total_cost_usd_reported": 0},
+      "turns": 125,
+      "injected_chars": 56000,
+      "smoke": false
+    }
+  ],
+  "scorecard": "n/a - our entrant is not the cognee-memory@cognee plugin; that plugin's own background instrumentation was present (v1.7.1, installed for its cognee-report skill dependency) but is not a measurement of our system and is not reported here",
+  "recall_observations": [
+    {
+      "time": "2026-10-17 (selftest)",
+      "issue": "standalone test: what does find_task_files do now?",
+      "item_kind": "code diff + extracted entities",
+      "rank": "1 of 1",
+      "helped": true,
+      "reason": "agent's answer matched the recalled diff exactly; the question never stated this"
+    },
+    {
+      "time": "2026-10-17T13:41",
+      "issue": "full run, issue-02",
+      "item_kind": "code diff + entities",
+      "rank": "1 of 1",
+      "helped": "unknown",
+      "reason": "recall confirmed non-empty (items_recalled=1, chars_injected=8000); diff-level usage not checked"
+    },
+    {
+      "time": "2026-10-17T13:58",
+      "issue": "full run, issue-08",
+      "item_kind": "code diff + entities (from issue 4's diff)",
+      "rank": "1 of 1",
+      "helped": "unknown",
+      "reason": "recall succeeded but issue did not meet its visible-failure target (1 failed vs target 0)"
+    },
+    {
+      "time": "2026-10-17",
+      "issue": "full run, issues 3,4,5,6,7",
+      "item_kind": "code diff + entities",
+      "rank": "1 of 1 each",
+      "helped": "unknown",
+      "reason": "recall confirmed non-empty via regenerated receipts for all five; diff-level usage not checked"
+    }
+  ],
+  "costs": {
+    "full_run_cumulative": {
+      "agent_cost_usd_median": 2.2858414650000003,
+      "memory_cost_usd_median": 0,
+      "memory_cost_usd_note": "null per-issue by design; usage.sh reports a character-count estimate only, cost_usd explicitly null -- cognee's REST API has no public per-call usage endpoint found; declared gap, not hidden",
+      "total_cost_usd_reported": 0,
+      "total_cost_usd_note": "display quirk: harness reports 0 at cumulative level despite real nonzero agent_cost_usd, because memory_cost_usd is explicitly unmeasured (null) per issue; agent_cost_usd is the trustworthy figure"
+    }
+  },
+  "what_did_not_work": [
+    "Receipt-reporting bug, found and fixed: MEMOFF_STATE_DIR never reaches wait.sh/receipt.sh/usage.sh (confirmed by reading sequencer.py), only the hook inside the claude subprocess. Fixed by anchoring on MEMOFF_INJECTED_DIR instead; re-validated against the real sequencer twice.",
+    "Correctness gate not met for issues 2-8 of the full run (visible-failure counts above target, e.g. issue 8: 1 failed vs target 0). claude-haiku-5-5 was a cost choice for pre-event testing; recall itself fired correctly on every one of these issues.",
+    "Dataset contamination during ad hoc testing, not a submission bug: an un-wiped leftover dataset from an earlier manual test leaked into a later unrelated recall query. Traced to a testing-hygiene gap, not a flaw in cognee's recall filtering or in wipe.sh/wipe_check.sh, both separately re-verified correct against the real harness."
+  ]
+}
