@@ -21,6 +21,11 @@ if [ -n "${MEMOFF_MEMORY_STORE:-}" ]; then
 fi
 printf '%s' "$SERVICE_URL" > "$STATE_DIR/service_url"
 
+if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+  echo "install.sh: ANTHROPIC_API_KEY is not set -- cognee-service cannot run without it" >&2
+  exit 1
+fi
+
 if [ ! -d "$VENV" ]; then
   python3 -m venv "$VENV"
 fi

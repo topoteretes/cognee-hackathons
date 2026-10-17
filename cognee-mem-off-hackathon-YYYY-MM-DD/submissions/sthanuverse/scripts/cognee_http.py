@@ -14,6 +14,7 @@ import os
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 STATE_DIR = os.path.join(os.path.expanduser("~"), ".memoff-cognee")
 DEFAULT_SERVICE_URL = "http://127.0.0.1:8057"
@@ -39,6 +40,46 @@ def memory_store():
             return f.read().strip()
     except OSError:
         return None
+
+
+def issue_state_dir(issue):
+    """Where this issue's receipt files live.
+
+    Reading the harness's own sequencer.py (2026-10-17) settled this: the
+    *value* `root / "state" / tag` only ever reaches the agent adapter, via
+    its stdin JSON's `state_dir` field -- the adapter itself must export it
+    as MEMOFF_STATE_DIR before launching `claude`, which is how the
+    UserPromptSubmit hook sees it. The env dict `run_script` uses for
+    wait.sh/receipt.sh/usage.sh never contains MEMOFF_STATE_DIR at all; an
+    issue-keyed fallback of our own invention (first attempt at this fix)
+    just missed the hook's real directory, including its zero-padded
+    "issue-06" naming.
+
+    MEMOFF_INJECTED_DIR, by contrast, *is* in that same env dict for every
+    script. Its directory is `root / "injected" / tag` -- a sibling of the
+    hook's real `root / "state" / tag` -- so it is used here as the anchor
+    to reconstruct the real path instead of inventing a new one.
+    """
+    state_dir = os.environ.get("MEMOFF_STATE_DIR")
+    if state_dir:
+        return state_dir
+
+    injected_dir = os.environ.get("MEMOFF_INJECTED_DIR")
+    if injected_dir:
+        root = Path(injected_dir).parent.parent  # .../<arm>/r<rep>
+        tag = _issue_tag(issue)
+        return str(root / "state" / tag)
+
+    fallback = os.path.join(STATE_DIR, _issue_tag(issue))
+    os.makedirs(fallback, exist_ok=True)
+    return fallback
+
+
+def _issue_tag(issue):
+    try:
+        return f"issue-{int(issue):02d}"
+    except (TypeError, ValueError):
+        return f"issue-{issue}"
 
 
 def _json_request(method, path, payload=None, timeout=30):

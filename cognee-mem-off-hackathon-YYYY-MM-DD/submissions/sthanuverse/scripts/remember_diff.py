@@ -48,7 +48,7 @@ def git_diff(workspace):
 def main():
     workspace = os.environ.get("MEMOFF_WORKSPACE")
     issue = os.environ.get("MEMOFF_ISSUE", "unknown")
-    state_dir = os.environ.get("MEMOFF_STATE_DIR", cognee_http.STATE_DIR)
+    state_dir = cognee_http.issue_state_dir(issue)
     timeout_s = float(os.environ.get("MEMOFF_WAIT_SECONDS", "600"))
 
     store = cognee_http.memory_store()

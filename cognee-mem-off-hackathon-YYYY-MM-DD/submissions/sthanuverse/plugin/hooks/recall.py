@@ -69,6 +69,38 @@ def _write(path, text):
         pass
 
 
+def _issue_state_dir(issue):
+    # Same resolution as scripts/cognee_http.py.issue_state_dir -- kept as
+    # its own copy here deliberately (see this file's module docstring).
+    # MEMOFF_STATE_DIR reaches this hook subprocess reliably in the harness
+    # we tested against (confirmed), but a different runner might not set it
+    # for the hook either -- MEMOFF_INJECTED_DIR is the one value every
+    # script, including this hook, is guaranteed to get, so it is the
+    # fallback anchor rather than inventing an unrelated directory.
+    state_dir = os.environ.get("MEMOFF_STATE_DIR")
+    if state_dir:
+        return state_dir
+
+    injected_dir = os.environ.get("MEMOFF_INJECTED_DIR")
+    if injected_dir:
+        root = os.path.dirname(os.path.dirname(injected_dir))  # .../<arm>/r<rep>
+        fallback = os.path.join(root, "state", _issue_tag(issue))
+    else:
+        fallback = os.path.join(STATE_DIR, _issue_tag(issue))
+    try:
+        os.makedirs(fallback, exist_ok=True)
+    except OSError:
+        pass
+    return fallback
+
+
+def _issue_tag(issue):
+    try:
+        return f"issue-{int(issue):02d}"
+    except (TypeError, ValueError):
+        return f"issue-{issue}"
+
+
 def main():
     try:
         payload = json.load(sys.stdin)
@@ -105,15 +137,14 @@ def main():
     if injected_dir:
         _write(os.path.join(injected_dir, f"issue-{issue}.txt"), context)
 
-    state_dir = os.environ.get("MEMOFF_STATE_DIR")
-    if state_dir:
-        receipt = {
-            "issue": issue,
-            "dataset": dataset,
-            "items_recalled": len(results),
-            "chars_injected": len(context),
-        }
-        _write(os.path.join(state_dir, "recall_receipt.json"), json.dumps(receipt))
+    state_dir = _issue_state_dir(issue)
+    receipt = {
+        "issue": issue,
+        "dataset": dataset,
+        "items_recalled": len(results),
+        "chars_injected": len(context),
+    }
+    _write(os.path.join(state_dir, "recall_receipt.json"), json.dumps(receipt))
 
     print(json.dumps({
         "hookSpecificOutput": {

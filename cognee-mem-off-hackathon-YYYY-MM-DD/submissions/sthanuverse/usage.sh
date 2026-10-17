@@ -4,31 +4,9 @@
 # we could find. Better partial accounting than reporting nothing; the
 # numbers are explicitly NOT real token counts (see memory.yml's notes and
 # SUBMISSION.md's known-gaps entry).
+#
+# Same directory-lookup reasoning as receipt.sh: the logic lives in
+# scripts/cognee_http.py's issue_state_dir(), not duplicated here.
 set -eu
-STATE_DIR="${MEMOFF_STATE_DIR:-$HOME/.memoff-cognee}"
-REMEMBER="$STATE_DIR/remember_receipt.json"
-
-python3 - "$REMEMBER" <<'PY'
-import json
-import sys
-
-path = sys.argv[1]
-try:
-    with open(path) as f:
-        receipt = json.load(f)
-except OSError:
-    receipt = {}
-
-chars = receipt.get("chars_written", 0)
-est_tokens = max(1, chars // 4)
-
-print(json.dumps([{
-    "id": f"cognee-diffmem:{receipt.get('issue', 'unknown')}",
-    "source": "server",
-    "tokens_in": est_tokens,
-    "tokens_out": 0,
-    "cost_usd": None,
-    "token_basis": "estimate_chars_div_4_not_measured",
-    "cost_basis": "unmeasured",
-}]))
-PY
+DIR="$(dirname "$0")"
+python3 "$DIR/scripts/print_usage.py"
