@@ -3,8 +3,8 @@
 ## Team
 
 - Team name: Sthanuverse
-- Participants (GitHub handles): TODO — fill before opening the PR
-- Contact for results (GitHub handle or email): TODO
+- Participants (GitHub handles): @prathikjannu
+- Contact for results (GitHub handle or email): @prathikjannu
 
 ## Track
 
@@ -65,18 +65,42 @@ Not entered.
 
 ## Recall story (Track 1, for the Best Recall Story award)
 
-TODO — fill from `results/injected/issue-08/` and `results/receipts/issue-08.json`
-once the organisers attach them.
+**Preliminary — from our own pre-event test run** (full 8-issue chain, `claude-haiku-5-5`,
+through the harness's own sequencer, not hand-built). Official evidence will be
+`results/injected/issue-08/` and `results/receipts/issue-08.json` once the organisers
+attach them after their own run; this section will be updated to match.
+
+What was recalled on issue 8: one item, 8000 characters, pulled from issue 4's diff
+(`xitkit/services.py`, the `update_task_description` removal and `FileDiscoveryService`
+changes) — the UserPromptSubmit hook injected it before the agent saw the issue 8 prompt,
+confirmed by `receipt.sh`:
+
+```
+{"recall": {"issue": "8", "dataset": "memoff_cognee-diffmem_r0_f28b4a80",
+  "items_recalled": 1, "chars_injected": 8000}}
+```
+
+Why it was selected: cognee's own graph search (HYBRID_COMPLETION, `only_context=true`)
+matched issue 8's prompt ("add controlled task-file discovery") against entities and
+relationships extracted from every earlier issue's diff in the same dataset — not a
+keyword match, a graph match against what the diffs actually changed.
+
+Honest caveat: issue 8 did not pass its visible grader this run (1 failure vs. a target
+of 0) — `claude-haiku-5-5` was chosen for cost in pre-event testing, not for correctness;
+the recall mechanism itself worked as designed on every issue we checked. A stronger
+model would likely score higher on the underlying fix.
 
 ## Memory report
 
-Produced by the `memoff-memory-report` skill. TODO — run
+Produced by the `memoff-memory-report` skill, which only produces real output during the
+live event (it builds the report from tool output as the day runs — nothing to backfill
+ahead of time). At the event: run
 `skills/memoff-memory-report/install.sh --event "Mem Off <date>" --team sthanuverse`
-and fill this section at wrap-up.
+and this section gets filled at wrap-up.
 
-- `report/memoff-report.md` and `report/memoff-report.json` present: TODO
-- Runs recorded (count, of which smoke): TODO
-- The one number you would show a judge, and the run folder it comes from: TODO
+- `report/memoff-report.md` and `report/memoff-report.json` present: not yet — pending the live event
+- Runs recorded (count, of which smoke): pending the live event
+- The one number you would show a judge, and the run folder it comes from: pending the live event
 
 ## Reproduction
 
@@ -94,9 +118,9 @@ ANTHROPIC_API_KEY
 
 ## Links
 
-- Repo: TODO — this PR, from a fork of `topoteretes/cognee-hackathons`
-- Demo (Loom / YouTube) or local instructions: TODO
-- Slides / write-up: TODO
+- Repo: this PR, from https://github.com/prathikjannu/cognee-hackathons (branch `submission/sthanuverse`)
+- Demo (Loom / YouTube) or local instructions: TODO — not yet recorded; local reproduction in the meantime: `sh ~/memoff-selftest.sh --with-claude` (see `scripts/` for the underlying calls)
+- Slides / write-up: none — terminal/evidence-based demo, no deck
 - Anything else: This arm's design reuses patterns (not code) from our own
   production cognee integration — `apps/cognee-service` and `packages/cognee-client`
   in the Sthanuverse-org monorepo, which already runs cognee-backed session memory
