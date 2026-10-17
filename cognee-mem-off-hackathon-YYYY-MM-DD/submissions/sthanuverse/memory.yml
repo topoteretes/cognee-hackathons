@@ -1,0 +1,42 @@
+# Mem Off entrant manifest. Validates against harness/memoff/memory.schema.json.
+name: cognee-diffmem
+display_name: Cognee Diff Memory (Sthanuverse entrant)
+version: "1.0.0"
+repository: https://github.com/prathikjannu/cognee-hackathons
+agent: claude-code
+
+hooks: [UserPromptSubmit]
+plugin_dirs: ["plugin"]
+
+install: install.sh
+wipe: wipe.sh
+wipe_check: wipe_check.sh
+wait: wait.sh
+preindex: false
+receipt: receipt.sh
+usage: usage.sh
+
+storage: "local cognee-service (SQLite + fastembed vector index) under ~/.memoff-cognee, one dataset per (arm, repeat)"
+network:
+  - "https://api.anthropic.com — cognee's own extraction/graph-build LLM calls (reuses the runner's existing ANTHROPIC_API_KEY, no new secret)"
+llm:
+  provider: anthropic
+  model: claude-haiku-5-5
+  embedding_model: fastembed/BAAI/bge-small-en-v1.5 (local, no network call, no key)
+notes: >
+  Deliberately deviates from our production cognee-service (apps/cognee-service in
+  our own SthanuVerse monorepo), which uses Gemini + Voyage: this arm reuses
+  ANTHROPIC_API_KEY instead of asking organisers to provision two more provider
+  keys for a one-day benchmark. Embeddings run fully local via cognee's built-in
+  fastembed fallback, so the only declared network endpoint is Anthropic's own.
+  ENABLE_BACKEND_ACCESS_CONTROL=False in install.sh: this service is a single
+  throwaway instance per (arm, repeat), never shared across tenants, so cognee's
+  multi-tenant auth posture is the wrong fit here (same reasoning our production
+  cognee-service README gives for its own ENABLE_BACKEND_ACCESS_CONTROL=False).
+  No session-cache memory is used: each issue writes its diff straight to the
+  shared $MEMOFF_MEMORY_STORE dataset (add+cognify, blocking, no session_id) and
+  the next issue's UserPromptSubmit hook recalls from that same dataset with
+  only_context=True (retrieval only, no extra LLM completion call per recall).
+  usage.sh reports an estimate from request/response character counts, not real
+  token counts — cognee's REST API has no public per-call usage endpoint we
+  could find; flagged as a known gap rather than omitted.
