@@ -1,0 +1,9 @@
+[
+  { "id": "G1", "position": 1, "type": "both",          "terminal": "A", "label": "near main terminal" },
+  { "id": "G2", "position": 2, "type": "domestic",      "terminal": "A", "label": "domestic only" },
+  { "id": "G3", "position": 3, "type": "both",          "terminal": "A", "label": "central" },
+  { "id": "G4", "position": 4, "type": "international",  "terminal": "B", "label": "international only" },
+  { "id": "G5", "position": 5, "type": "both",          "terminal": "B", "label": "far" },
+  { "id": "G6", "position": 6, "type": "domestic",      "terminal": "B", "label": "far domestic" },
+  { "id": "G7", "position": 7, "type": "both",          "terminal": "B", "label": "overflow stand" }
+]

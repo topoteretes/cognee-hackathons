@@ -1,0 +1,17 @@
+[
+  { "id": "AB101", "airline": "AeroBlue",   "arrival": "06:30", "departure": "07:45", "type": "domestic",      "preferred": ["G1", "G2"] },
+  { "id": "AB102", "airline": "AeroBlue",   "arrival": "07:00", "departure": "08:30", "type": "domestic",      "preferred": ["G1", "G2"] },
+  { "id": "CD201", "airline": "CloudAir",   "arrival": "07:15", "departure": "09:30", "type": "international", "preferred": ["G4"] },
+  { "id": "EF301", "airline": "EastFly",    "arrival": "07:45", "departure": "08:40", "type": "domestic",      "preferred": ["G2", "G3"] },
+  { "id": "GH401", "airline": "GoHop",      "arrival": "08:00", "departure": "10:15", "type": "international", "preferred": ["G4", "G5"] },
+  { "id": "AB103", "airline": "AeroBlue",   "arrival": "08:20", "departure": "09:10", "type": "domestic",      "preferred": ["G1", "G3"] },
+  { "id": "IJ501", "airline": "IslandJet",  "arrival": "08:45", "departure": "11:00", "type": "international", "preferred": ["G4", "G5"] },
+  { "id": "EF302", "airline": "EastFly",    "arrival": "09:00", "departure": "10:05", "type": "domestic",      "preferred": ["G3", "G6"] },
+  { "id": "CD202", "airline": "CloudAir",   "arrival": "09:30", "departure": "12:00", "type": "international", "preferred": ["G4"] },
+  { "id": "AB104", "airline": "AeroBlue",   "arrival": "09:45", "departure": "10:50", "type": "domestic",      "preferred": ["G1", "G2"] },
+  { "id": "GH402", "airline": "GoHop",      "arrival": "10:10", "departure": "11:40", "type": "domestic",      "preferred": ["G3", "G6"] },
+  { "id": "IJ502", "airline": "IslandJet",  "arrival": "10:30", "departure": "13:15", "type": "international", "preferred": ["G5"] },
+  { "id": "EF303", "airline": "EastFly",    "arrival": "11:00", "departure": "12:10", "type": "domestic",      "preferred": ["G2", "G3"] },
+  { "id": "AB105", "airline": "AeroBlue",   "arrival": "11:20", "departure": "12:45", "type": "domestic",      "preferred": ["G1", "G6"] },
+  { "id": "CD203", "airline": "CloudAir",   "arrival": "11:45", "departure": "14:00", "type": "international", "preferred": ["G4", "G5"] }
+]
