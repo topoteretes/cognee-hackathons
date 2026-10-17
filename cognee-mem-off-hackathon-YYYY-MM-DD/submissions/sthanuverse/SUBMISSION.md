@@ -65,10 +65,10 @@ Not entered.
 
 ## Recall story (Track 1, for the Best Recall Story award)
 
-**Preliminary — from our own pre-event test run** (full 8-issue chain, `claude-haiku-5-5`,
-through the harness's own sequencer, not hand-built). Official evidence will be
-`results/injected/issue-08/` and `results/receipts/issue-08.json` once the organisers
-attach them after their own run; this section will be updated to match.
+**From our own self-run** (full 8-issue chain, `claude-haiku-5-5`, through the harness's
+own sequencer, not hand-built) — not yet replaced by the organisers' own attached run.
+Official evidence will be `results/injected/issue-08/` and `results/receipts/issue-08.json`
+once the organisers attach them; this section will be updated to match.
 
 What was recalled on issue 8: one item, 8000 characters, pulled from issue 4's diff
 (`xitkit/services.py`, the `update_task_description` removal and `FileDiscoveryService`
@@ -86,19 +86,17 @@ relationships extracted from every earlier issue's diff in the same dataset — 
 keyword match, a graph match against what the diffs actually changed.
 
 Honest caveat: issue 8 did not pass its visible grader this run (1 failure vs. a target
-of 0) — `claude-haiku-5-5` was chosen for cost in pre-event testing, not for correctness;
+of 0) — `claude-haiku-5-5` was chosen for cost on our own self-run, not for correctness;
 the recall mechanism itself worked as designed on every issue we checked. A stronger
 model would likely score higher on the underlying fix.
 
 ## Memory report
 
-Produced by the `memoff-memory-report` skill. Current content is from **pre-event testing**
-(the skill was already run once, against real local harness runs, to validate the whole
-pipeline end to end) — not official event results. At the live event, re-running
-`skills/memoff-memory-report/install.sh --event "Mem Off <date>" --team sthanuverse` and
-the skill's wrap-up updates both files in place with real event-day data.
+Produced by the `memoff-memory-report` skill, run once already against our own real local
+harness runs (self-run, not yet replaced by the organisers' own attached run) to validate
+the whole pipeline end to end.
 
-- `report/memoff-report.md` and `report/memoff-report.json` present: yes (pre-event testing data; will be refreshed at the live event)
+- `report/memoff-report.md` and `report/memoff-report.json` present: yes (from our own self-run)
 - Runs recorded (count, of which smoke): 3 (1 smoke, 2 real model runs — a 2-issue run and the full 8-issue chain)
 - The one number you would show a judge, and the run folder it comes from: recall fired correctly (non-empty, correctly dataset-scoped) on every issue from issue 2 onward in the full 8-issue run (`/tmp/memoff-full-sthanuverse`), confirmed via regenerated receipts
 
