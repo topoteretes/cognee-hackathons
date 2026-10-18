@@ -1,0 +1,52 @@
+# Mem Off entrant manifest for Crowmem. Validated against the organiser's
+# harness/memoff/memory.schema.json; see memoff/README.md for remaining gaps.
+
+name: crowmem
+display_name: Crowmem (Corvid Memory Architecture)
+version: "6c925b6b084430eb6e246abf5b6262a623e44056"
+repository: https://github.com/rwberndt/Crowmem
+agent: claude-code
+
+hooks: [UserPromptSubmit, PostToolUse, Stop, SessionEnd]
+plugin_dirs: ["plugin"]
+
+install: install.sh
+wipe: wipe.sh
+wipe_check: wipe_check.sh
+wait: wait.sh
+preindex: false
+receipt: receipt.sh
+usage: usage.sh
+
+storage: "postgresql://127.0.0.1:5432/crowmem_memoff (local, installed by install.sh)"
+network:
+  - "https://github.com — engine, pgvector, and managed Python downloads during install"
+  - "https://pypi.org and https://files.pythonhosted.org — package downloads during install"
+  - "https://huggingface.co — local fastembed model weights on first use"
+  - "https://api.anthropic.com — extraction + belief-relation classification (server-side, not the agent's own call)"
+llm:
+  provider: anthropic
+  model: claude-haiku-4-5
+  embedding_model: BAAI/bge-small-en-v1.5   # local fastembed inference
+
+notes: >
+  Extraction is synchronous: POST /events returns only after salience
+  scoring and memory/belief extraction complete, so wait.sh has nothing
+  async to wait for -- it only health-checks the local service.
+
+  Known limitation, stated plainly rather than hidden: hooks never see the
+  private grader's verdict. The Stop hook reads a STATUS: implemented /
+  not_implemented line from the agent's own final message (the same
+  self-report signal the harness's own claim-scoring uses) and uses that as
+  the reinforcement signal for /outcomes. A confidently-wrong agent could
+  therefore reinforce a memory that didn't actually help. This is a
+  best-effort proxy, not ground truth.
+
+  The Stop hook also records a concise agent self-report as an observation
+  for the next issue. This covers sessions where successful Bash commands
+  made every code edit and the selective PostToolUse hook saw no edit event.
+
+  This manifest, the scripts, and the hook bundle were written against the
+  documented entrant contract (CONTRACT.md) and the Claude Code hook JSON
+  schema. The plugin has been exercised in the public Mem Off Linux harness
+  locally; the organisers' private graders remain unavailable here.

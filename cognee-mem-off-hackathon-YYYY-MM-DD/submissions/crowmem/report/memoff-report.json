@@ -1,0 +1,97 @@
+{
+  "type": "memoff-memory-report",
+  "event": "Mem Off",
+  "team": "crowmem",
+  "system": "Crowmem 6c925b6b084430eb6e246abf5b6262a623e44056",
+  "agent": "claude-code",
+  "cognee_plugin": "1.7.1",
+  "first_green_run": "2026-10-17T23:40:10+0000 (visible target only)",
+  "run_count": 3,
+  "smoke_runs": 1,
+  "summary": "One two-issue smoke run completed without model calls. A real Issue 1 cold-store probe met the public visible target in 13 turns. After correcting a Bash-only observation gap, a two-issue probe met both public visible targets and injected two memories (392 characters) into Issue 2. Private grading is unavailable and no causal memory effect is claimed.",
+  "runs": [
+    {
+      "time": "2026-10-17T23:30:51+0000",
+      "command": "memoff run --smoke --no-control --arms /entrant --only 1 2 --repeats 1 --xitkit-source /xitkit --out /runs/crowmem-smoke-2",
+      "out_dir": "/runs/crowmem-smoke-2",
+      "arms": ["crowmem"],
+      "issues": [1, 2],
+      "repeats": 1,
+      "all_pass": false,
+      "median_cost_usd": null,
+      "turns": null,
+      "injected_chars": 0,
+      "smoke": true
+    },
+    {
+      "time": "2026-10-17T23:36:17+0000",
+      "command": "memoff run --no-control --arms /entrant --only 1 --repeats 1 --xitkit-source /xitkit --out /runs/crowmem-real-probe",
+      "out_dir": "/runs/crowmem-real-probe",
+      "arms": ["crowmem"],
+      "issues": [1],
+      "repeats": 1,
+      "all_pass": true,
+      "private_graders": false,
+      "median_cost_usd": null,
+      "turns": 13,
+      "injected_chars": 0,
+      "smoke": false
+    },
+    {
+      "time": "2026-10-18T00:04:54+0000",
+      "command": "memoff run --no-control --arms /entrant --only 1 2 --repeats 1 --xitkit-source /xitkit --out /runs/crowmem-memory-probe",
+      "out_dir": "/runs/crowmem-memory-probe",
+      "arms": ["crowmem"],
+      "issues": [1, 2],
+      "repeats": 1,
+      "all_pass": true,
+      "private_graders": false,
+      "median_cost_usd": null,
+      "turns": 28,
+      "injected_chars": 392,
+      "smoke": false
+    }
+  ],
+  "scorecard": null,
+  "recall_observations": [
+    {
+      "time": "2026-10-18T00:09:22+0000",
+      "issue": 2,
+      "run_folder": "/runs/crowmem-memory-probe",
+      "item_kind": "agent-summary memories",
+      "ids": ["1939cedb-bd43-4738-a762-78be514caaa2", "1b875a2a-1fa0-4749-b1b4-0808688252d4"],
+      "ranks": [1, 2],
+      "injected_chars": 392,
+      "helped": null,
+      "reason": "Receipt and injected dump show delivery; no diff establishes use."
+    }
+  ],
+  "costs": {
+    "smoke_agent_usd": null,
+    "smoke_memory_usd": null,
+    "probe_agent_usd": 0.0806143,
+    "probe_memory_usd": 0.004313,
+    "probe_total_usd": null,
+    "memory_probe_agent_usd": 0.3373472,
+    "memory_probe_memory_usd": 0.013129,
+    "memory_probe_total_usd": null
+  },
+  "what_did_not_work": [
+    {
+      "run_folder": "/runs/crowmem-smoke",
+      "reason": "Pinned engine commit lacked editable-build package discovery; install.sh was changed to install its declared dependencies."
+    },
+    {
+      "run_folder": "/runs/crowmem-real",
+      "reason": "Published Dockerfile ran Claude Code as root; the harness permission flag was rejected. A local non-root runner was used for the completed probe."
+    },
+    {
+      "run_folder": "/runs/crowmem-real-probe",
+      "reason": "Public harness marked entrant usage incomplete despite separate client and server costs; total cost is unmeasured."
+    },
+    {
+      "run_folder": "/runs/crowmem-full",
+      "reason": "Stopped after Issue 2 when Bash-only successful edits produced no observation episodes. A corrected Stop hook stored an agent summary; the two-issue probe confirmed cross-issue recall."
+    }
+  ]
+}
